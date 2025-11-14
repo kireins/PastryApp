@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 import requests
 import os
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -15,6 +16,22 @@ app.config['JWT_ALGORITHM'] = os.getenv('JWT_ALGORITHM', 'HS256')
 
 jwt = JWTManager(app)
 CORS(app)
+
+# Configure JWT token expiration (24 hours)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
+
+# JWT Error Handlers
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({'error': 'Token has expired. Please login again.'}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({'error': f'Invalid token: {str(error)}'}), 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    return jsonify({'error': 'Authorization token is missing. Please login first.'}), 401
 
 # Service URLs
 CUSTOMER_SERVICE_URL = os.getenv('CUSTOMER_SERVICE_URL', 'http://localhost:5001')
@@ -32,27 +49,38 @@ USERS = {
 @app.route('/api/login', methods=['POST'])
 def login():
     """
-    Login endpoint that generates JWT token based on role
-    Expected JSON: { "username": "customer", "password": "iamcustomer", "role": "customer" }
+    Login endpoint that generates JWT token
+    Server determines user role from database, not from request
+    Expected JSON: { "username": "customer", "password": "iamcustomer" }
     """
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    role = data.get('role', 'customer')
+
+    # Validate credentials
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
 
     if username not in USERS or USERS[username]['password'] != password:
         return jsonify({'error': 'Invalid credentials'}), 401
 
-    if USERS[username]['role'] != role:
-        return jsonify({'error': 'Invalid role'}), 401
+    # Server determines role from database, not from user input
+    role = USERS[username]['role']
 
+    # Create JWT token with role claim
     access_token = create_access_token(
         identity=username,
         additional_claims={'role': role}
     )
 
+    # Calculate expiration time
+    expires_at = datetime.utcnow() + timedelta(hours=24)
+
     return jsonify({
         'access_token': access_token,
+        'token_type': 'Bearer',
+        'expires_in': 86400,  # 24 hours in seconds
+        'expires_at': expires_at.isoformat(),
         'username': username,
         'role': role,
         'message': f'Successfully logged in as {role}'
@@ -81,9 +109,26 @@ def get_customer(customer_id):
 @app.route('/api/customers', methods=['POST'])
 def create_customer():
     """Create new customer"""
-    data = request.get_json()
-    response = requests.post(f'{CUSTOMER_SERVICE_URL}/customers', json=data)
-    return response.json(), response.status_code
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        response = requests.post(f'{CUSTOMER_SERVICE_URL}/customers', json=data, timeout=10)
+        
+        try:
+            return response.json(), response.status_code
+        except ValueError:
+            return jsonify({
+                'error': f'Customer service returned invalid response: {response.status_code}',
+                'details': response.text[:200]
+            }), response.status_code
+    except requests.exceptions.ConnectionError:
+        return jsonify({'error': 'Cannot connect to Customer Service. Please check if it is running on port 5001'}), 503
+    except requests.exceptions.Timeout:
+        return jsonify({'error': 'Customer Service request timeout'}), 504
+    except Exception as e:
+        return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
 @app.route('/api/customers/<int:customer_id>', methods=['PUT'])
 @jwt_required()
@@ -229,10 +274,28 @@ def get_order(order_id):
 @jwt_required()
 def create_order():
     """Create new order"""
-    data = request.get_json()
-    data['username'] = get_jwt_identity()
-    response = requests.post(f'{ORDER_SERVICE_URL}/orders', json=data)
-    return response.json(), response.status_code
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        data['username'] = get_jwt_identity()
+        response = requests.post(f'{ORDER_SERVICE_URL}/orders', json=data, timeout=10)
+        
+        try:
+            return response.json(), response.status_code
+        except ValueError:
+            # If response is not JSON
+            return jsonify({
+                'error': f'Order service returned invalid response: {response.status_code}',
+                'details': response.text[:200]
+            }), response.status_code
+    except requests.exceptions.ConnectionError:
+        return jsonify({'error': 'Cannot connect to Order Service. Please check if it is running on port 5004'}), 503
+    except requests.exceptions.Timeout:
+        return jsonify({'error': 'Order Service request timeout'}), 504
+    except Exception as e:
+        return jsonify({'error': f'Internal server error: {str(e)}'}), 500
 
 @app.route('/api/orders/<int:order_id>', methods=['PUT'])
 @jwt_required()

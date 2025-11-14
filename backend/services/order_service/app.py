@@ -39,7 +39,14 @@ def validate_customer(customer_id):
     try:
         response = requests.get(f'{CUSTOMER_SERVICE_URL}/customers/{customer_id}', timeout=5)
         return response.status_code == 200
-    except:
+    except requests.exceptions.ConnectionError:
+        print(f"ERROR: Cannot connect to Customer Service at {CUSTOMER_SERVICE_URL}")
+        return False
+    except requests.exceptions.Timeout:
+        print(f"ERROR: Customer Service request timeout")
+        return False
+    except Exception as e:
+        print(f"ERROR: Customer validation failed: {str(e)}")
         return False
 
 def validate_menu_item(menu_id):
@@ -47,7 +54,14 @@ def validate_menu_item(menu_id):
     try:
         response = requests.get(f'{MENU_SERVICE_URL}/menus/{menu_id}', timeout=5)
         return response.status_code == 200
-    except:
+    except requests.exceptions.ConnectionError:
+        print(f"ERROR: Cannot connect to Menu Service at {MENU_SERVICE_URL}")
+        return False
+    except requests.exceptions.Timeout:
+        print(f"ERROR: Menu Service request timeout")
+        return False
+    except Exception as e:
+        print(f"ERROR: Menu validation failed: {str(e)}")
         return False
 
 # ==================== ORDER CRUD ====================
@@ -72,9 +86,14 @@ def get_orders():
         
         orders = cursor.fetchall()
         
-        # Enrich orders with items
+        # Enrich orders with items and menu names
         for order in orders:
-            cursor.execute('SELECT menu_id, quantity, price FROM order_items WHERE order_id = %s', (order['id'],))
+            cursor.execute('''
+                SELECT oi.menu_id, oi.quantity, oi.price, mi.name as menu_name
+                FROM order_items oi
+                LEFT JOIN menu_items mi ON oi.menu_id = mi.id
+                WHERE oi.order_id = %s
+            ''', (order['id'],))
             order['items'] = cursor.fetchall()
         
         cursor.close()
@@ -100,8 +119,13 @@ def get_order(order_id):
             conn.close()
             return jsonify({'error': 'Order not found'}), 404
 
-        # Get order items
-        cursor.execute('SELECT menu_id, quantity, price FROM order_items WHERE order_id = %s', (order_id,))
+        # Get order items with menu names
+        cursor.execute('''
+            SELECT oi.menu_id, oi.quantity, oi.price, mi.name as menu_name
+            FROM order_items oi
+            LEFT JOIN menu_items mi ON oi.menu_id = mi.id
+            WHERE oi.order_id = %s
+        ''', (order_id,))
         order['items'] = cursor.fetchall()
         
         cursor.close()
@@ -121,14 +145,29 @@ def create_order():
     try:
         # Validate customer
         customer_id = data.get('customer_id')
+        if not customer_id:
+            return jsonify({'error': 'customer_id is required'}), 400
+        
         if not validate_customer(customer_id):
-            return jsonify({'error': 'Customer not found'}), 404
+            return jsonify({
+                'error': f'Customer {customer_id} not found or Customer Service is not available',
+                'details': 'Please check if Customer Service is running on port 5001'
+            }), 404
 
         # Validate all menu items
         items = data.get('items', [])
+        if not items:
+            return jsonify({'error': 'Order must contain at least one item'}), 400
+        
         for item in items:
-            if not validate_menu_item(item.get('menu_id')):
-                return jsonify({'error': f"Menu item {item.get('menu_id')} not found"}), 404
+            menu_id = item.get('menu_id')
+            if not menu_id:
+                return jsonify({'error': 'Each item must have a menu_id'}), 400
+            if not validate_menu_item(menu_id):
+                return jsonify({
+                    'error': f'Menu item {menu_id} not found or Menu Service is not available',
+                    'details': 'Please check if Menu Service is running on port 5003'
+                }), 404
 
         cursor = conn.cursor()
         

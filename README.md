@@ -2,6 +2,12 @@
 
 A complete microservices-based food delivery application for the Pastry restaurant built with Flask, featuring JWT authentication with role-based access control, API Gateway, dual-role frontend (Customer & Admin), and real-time order management.
 
+## 🙆‍♀️ Team Member 
+1. Hamas Naifa Levinamaitsa - 102022300210 - as System Analyst
+2. Anisa Fatiimatus Zahro - 102022330350 - as System Analyst
+3. Kirei Najwa Shafira - 102022300106 - as Frontend Developer
+4. Clarissa Wemona Wibawaningrum - 102022300189 - as Backend Developer
+
 ## ✨ Key Features
 
 ### 🎯 Dual-Role System
@@ -74,6 +80,243 @@ PastryApp/
 └── documentation/
     └── Pastry_API.postman_collection.json
 ```
+
+## 🏗️ System Architecture
+
+### Overview
+
+Pastry Delivery System menggunakan arsitektur **Microservices** dengan pola **API Gateway Pattern**. Semua request dari client harus melalui API Gateway, tidak langsung ke microservices.
+
+```
+┌─────────────┐
+│   Client    │ (Frontend: index.html, admin.html)
+│  (Browser)  │
+└──────┬──────┘
+       │ HTTP Request
+       │ (with JWT Token)
+       ▼
+┌─────────────────────────────────────┐
+│         API Gateway                 │
+│      (Port 5000)                    │
+│  • JWT Authentication               │
+│  • Request Routing                  │
+│  • Authorization (Role-based)       │
+└──────┬──────────────────────────────┘
+       │
+       ├─────────────────────────────────────┐
+       │                                     │
+       ▼                                     ▼
+┌──────────────────┐              ┌──────────────────┐
+│ Customer Service │              │  Menu Service    │
+│   (Port 5001)    │              │   (Port 5003)    │
+│                  │              │                  │
+│ • CRUD Customers │              │ • CRUD Menus     │
+└────────┬─────────┘              └────────┬─────────┘
+         │                                │
+         │                                │
+         ▼                                ▼
+┌──────────────────┐              ┌──────────────────┐
+│  Order Service   │              │ Restaurant Service│
+│   (Port 5004)    │              │   (Port 5002)     │
+│                  │              │                  │
+│ • CRUD Orders    │              │ • CRUD Restaurants│
+│ • Validates with │              │                  │
+│   Customer &     │              │                  │
+│   Menu Services  │              │                  │
+└────────┬─────────┘              └────────┬─────────┘
+         │                                │
+         └────────────┬───────────────────┘
+                      │
+                      ▼
+              ┌──────────────┐
+              │   MySQL DB    │
+              │  (pastry_db)  │
+              └──────────────┘
+```
+
+### Architecture Principles
+
+1. **API Gateway = Routing Only**
+   - Tidak melakukan business logic
+   - Hanya forward request ke appropriate service
+   - Handle JWT authentication & authorization
+   - Return response dari service ke client
+
+2. **Service = Business Logic**
+   - Setiap service memiliki domain responsibility sendiri
+   - Validasi input dilakukan di service level
+   - Service langsung berinteraksi dengan database
+   - Service-to-service communication untuk validation (Order Service → Customer/Menu Service)
+
+3. **Simple & Direct Flow**
+   - Frontend → API Gateway → Service → Database
+   - Tidak ada intermediate calls yang tidak perlu
+   - Response flow: Database → Service → Gateway → Frontend
+
+### Request Flow Examples
+
+#### 1. Customer Creation Flow
+
+```
+Frontend Client    API Gateway    Customer Service    Database
+     |                  |                 |              |
+     |--POST /api/customers-->|            |              |
+     |  {name, email, phone}  |            |              |
+     |                  |                 |              |
+     |                  |--POST /customers-->|           |
+     |                  |  {name, email, phone}         |
+     |                  |                 |              |
+     |                  |                 |--INSERT----->|
+     |                  |                 |              |
+     |                  |                 |<--customer_id|
+     |                  |                 |              |
+     |                  |<--201 Created---|              |
+     |                  |  {id, message}  |              |
+     |                  |                 |              |
+     |<--201 Created----|                 |              |
+     |  {id, message}   |                 |              |
+     |                  |                 |              |
+```
+
+**Implementation:**
+- Frontend: `POST /api/customers` → API Gateway
+- API Gateway: Forward to `POST /customers` → Customer Service
+- Customer Service: Validate input → Insert to database → Return response
+- Response flows back: Database → Service → Gateway → Frontend
+
+#### 2. Order Creation Flow (with Service Validation)
+
+```
+Frontend Client    API Gateway    Order Service    Customer Service    Menu Service    Database
+     |                  |              |                  |                 |              |
+     |--POST /api/orders-->|           |                  |                 |              |
+     |  {customer_id, items}           |                  |                 |              |
+     |                  |              |                  |                 |              |
+     |                  |--POST /orders-->|                 |                 |              |
+     |                  |              |                  |                 |              |
+     |                  |              |--GET /customers/{id}-->|           |              |
+     |                  |              |                  |                 |              |
+     |                  |              |<--200 OK---------|                 |              |
+     |                  |              |                  |                 |              |
+     |                  |              |--GET /menus/{id}------------------>|              |
+     |                  |              |  (for each item)                  |              |
+     |                  |              |                  |                 |              |
+     |                  |              |<--200 OK---------------------------|              |
+     |                  |              |                  |                 |              |
+     |                  |              |--INSERT orders & order_items------->|              |
+     |                  |              |                  |                 |              |
+     |                  |              |<--order_id--------------------------|              |
+     |                  |              |                  |                 |              |
+     |                  |<--201 Created|                  |                 |              |
+     |                  |              |                  |                 |              |
+     |<--201 Created----|              |                  |                 |              |
+     |                  |              |                  |                 |              |
+```
+
+**Implementation:**
+- Frontend: `POST /api/orders` → API Gateway (with JWT token)
+- API Gateway: Validate JWT → Forward to `POST /orders` → Order Service
+- Order Service:
+  1. Validate customer exists: `GET /customers/{id}` → Customer Service
+  2. Validate menu items exist: `GET /menus/{id}` → Menu Service (for each item)
+  3. If all valid: Insert order & order_items to database
+  4. Return order with calculated total
+- **Note:** Order Service does NOT validate restaurant_id (restaurant validation is not implemented)
+- Response flows back: Database → Order Service → Gateway → Frontend
+
+#### 3. Restaurant Creation Flow
+
+```
+Frontend Client    API Gateway    Restaurant Service    Database
+     |                  |                 |              |
+     |--POST /api/restaurants-->|         |              |
+     |  {name, location}        |         |              |
+     |                  |                 |              |
+     |                  |--POST /restaurants-->|         |
+     |                  |  {name, location}    |         |
+     |                  |                 |              |
+     |                  |                 |--INSERT----->|
+     |                  |                 |              |
+     |                  |                 |<--restaurant_id|
+     |                  |                 |              |
+     |                  |<--201 Created---|              |
+     |                  |                 |              |
+     |<--201 Created----|                 |              |
+     |                  |                 |              |
+```
+
+**Implementation:**
+- Frontend: `POST /api/restaurants` → API Gateway (with JWT token, Admin only)
+- API Gateway: Validate JWT & role (admin) → Forward to `POST /restaurants` → Restaurant Service
+- Restaurant Service: Validate input → Insert to database → Return response
+- **Note:** API Gateway does NOT perform multiple GET requests (no `/status/`, `/lokasi/` endpoints)
+- Response flows back: Database → Restaurant Service → Gateway → Frontend
+
+#### 4. Menu Creation Flow
+
+```
+Frontend Client    API Gateway    Menu Service    Database
+     |                  |              |              |
+     |--POST /api/menus-->|            |              |
+     |  {restaurant_id, name, price}  |              |
+     |                  |              |              |
+     |                  |--POST /menus-->|            |
+     |                  |              |              |
+     |                  |              |--INSERT----->|
+     |                  |              |              |
+     |                  |              |<--menu_id----|
+     |                  |              |              |
+     |                  |<--201 Created-|              |
+     |                  |              |              |
+     |<--201 Created----|              |              |
+     |                  |              |              |
+```
+
+**Implementation:**
+- Frontend: `POST /api/menus` → API Gateway (with JWT token, Admin only)
+- API Gateway: Validate JWT & role (admin) → Forward to `POST /menus` → Menu Service
+- Menu Service: Validate input → Insert to database → Return response
+- **Note:** Menu Service does NOT validate restaurant_id with Restaurant Service (validation not implemented)
+- Response flows back: Database → Menu Service → Gateway → Frontend
+
+### Service Communication Pattern
+
+**Consumer-Provider Pattern:**
+- **Order Service** (Consumer) memvalidasi data dengan:
+  - **Customer Service** (Provider): Validasi customer_id exists
+  - **Menu Service** (Provider): Validasi menu_id exists dan get price
+
+**Direct Database Access:**
+- Setiap service memiliki akses langsung ke database
+- Service tidak berkomunikasi dengan service lain untuk CRUD operations
+- Service-to-service communication hanya untuk **validation** (bukan untuk data retrieval)
+
+### Port Configuration
+
+| Service | Port | Base URL |
+|---------|------|----------|
+| API Gateway | 5000 | `http://localhost:5000/api` |
+| Customer Service | 5001 | `http://localhost:5001` |
+| Restaurant Service | 5002 | `http://localhost:5002` |
+| Menu Service | 5003 | `http://localhost:5003` |
+| Order Service | 5004 | `http://localhost:5004` |
+| Frontend | 8000 | `http://localhost:8000` |
+
+### Security Architecture
+
+1. **JWT Authentication**
+   - Login: `POST /api/login` → Returns JWT token
+   - All protected endpoints require: `Authorization: Bearer <token>`
+   - Token contains: `username` (identity) and `role` (claim)
+
+2. **Role-Based Access Control**
+   - **Customer Role**: Can create orders, view own orders
+   - **Admin Role**: Can manage all orders, customers, menus, restaurants
+
+3. **API Gateway Authorization**
+   - Validates JWT token before forwarding to services
+   - Checks role for admin-only endpoints
+   - Returns 401 if token invalid/expired
 
 ## 🚀 Getting Started
 
@@ -186,16 +429,34 @@ python app.py
 
 #### 7. Access Frontend
 
-Open a web server for the frontend. You can use Python's built-in server:
+Frontend menggunakan HTML/CSS/JavaScript murni, tidak perlu build.
 
+**Cara menjalankan:**
+
+**Option 1: Python HTTP Server (Recommended)**
 ```bash
 cd frontend
 python3 -m http.server 8000
 ```
 
+**Option 2: Node.js (jika tersedia)**
+```bash
+cd frontend
+npx http-server -p 8000
+```
+
+**Option 3: Windows Batch Script**
+```bash
+# Gunakan script yang sudah ada:
+start-all-services.bat
+# Script ini akan start semua service termasuk frontend
+```
+
 Then visit:
 - **Customer**: http://localhost:8000/index.html
 - **Admin**: http://localhost:8000/admin.html
+
+**Catatan:** Frontend memanggil API Gateway di `http://localhost:5050/api`, bukan langsung ke services.
 
 ## 🔑 Default Credentials
 
@@ -333,6 +594,10 @@ Features:
 6. **Smooth Transitions**: All interactive elements
 
 ## 🔌 API Endpoints
+
+**📖 Dokumentasi lengkap:** [docs/api/ENDPOINTS.md](docs/api/ENDPOINTS.md)  
+**📝 Contoh request/response:** [docs/api/EXAMPLES.md](docs/api/EXAMPLES.md)  
+**📮 Postman Collection:** `documentation/Pastry_API.postman_collection.json`
 
 ### Authentication
 ```
@@ -569,6 +834,22 @@ To contribute to this project:
 1. Create a feature branch
 2. Make your changes
 3. Submit a pull request
+
+## 👥 Tim & Pembagian Tugas
+
+| Nama Anggota | NIM | Peran | Service/Fitur yang Dikerjakan |
+|--------------|-----|-------|------------------------------|
+| Hamas Naifa Levinamaitsa | 102022300210 | System Analyst | System Design, Architecture Planning, API Documentation, Database Schema Design |
+| Anisa Fatiimatus Zahro | 102022330350 | System Analyst | System Design, Architecture Planning, API Documentation, Project Documentation |
+| Kirei Najwa Shafira | 102022300106 | Frontend Developer | Customer Interface (index.html), Admin Dashboard (admin.html), Frontend Integration, Logo Maker, Assets Maker |
+| Clarissa Wemona Wibawaningrum | 102022300189 | Backend Developer | API Gateway, JWT Authentication, All Microservices (Customer, Menu, Order, Restaurant), Database Implementation |
+
+## 📚 Dokumentasi Lengkap
+
+- **API Endpoints:** [docs/api/ENDPOINTS.md](docs/api/ENDPOINTS.md)
+- **API Examples:** [docs/api/EXAMPLES.md](docs/api/EXAMPLES.md)
+- **Database Setup:** [database/README.md](database/README.md)
+- **Submission Guide:** [SUBMISSION_GUIDE.md](SUBMISSION_GUIDE.md)
 
 ## 📄 License
 
