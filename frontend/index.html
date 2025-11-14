@@ -38,6 +38,7 @@
             background-color: var(--cream);
             color: var(--black);
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
         /* Navigation Bar */
@@ -47,23 +48,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
             z-index: 100;
-            animation: slideDown 0.5s ease-out;
         }
 
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
 
         .nav-brand {
             font-size: 1.5rem;
@@ -101,12 +91,10 @@
         .btn-login {
             background-color: var(--black);
             color: var(--white);
-            box-shadow: var(--shadow-md);
         }
 
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
+            opacity: 0.9;
         }
 
         .user-info {
@@ -123,12 +111,10 @@
         .btn-logout {
             background-color: var(--pink-vibrant);
             color: var(--white);
-            box-shadow: var(--shadow-md);
         }
 
         .btn-logout:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-hover);
+            opacity: 0.9;
         }
 
         /* Login Modal */
@@ -141,13 +127,8 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
 
         .modal.show {
             display: flex;
@@ -158,23 +139,12 @@
         .modal-content {
             background-color: var(--white);
             padding: 2rem;
-            border-radius: 15px;
+            border-radius: 12px;
             width: 90%;
             max-width: 400px;
-            box-shadow: var(--shadow-xl);
-            animation: slideUp 0.3s ease-out;
+            box-shadow: var(--shadow-lg);
         }
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
 
         .modal-header {
             font-size: 1.5rem;
@@ -194,20 +164,24 @@
             color: var(--black);
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 0.75rem;
             border: 2px solid var(--pink-light);
             border-radius: 8px;
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
+            transition: border-color 0.2s ease;
         }
 
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--pink-vibrant);
-            box-shadow: 0 0 10px rgba(225, 95, 140, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .btn-submit {
@@ -219,13 +193,12 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: opacity 0.2s ease;
             margin-top: 1rem;
         }
 
         .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(225, 95, 140, 0.3);
+            opacity: 0.9;
         }
 
         .close {
@@ -250,7 +223,7 @@
 
         /* Hero Section */
         .hero {
-            background: var(--green-base);
+            background-color: var(--green-base);
             padding: 3rem;
             border-radius: 15px;
             margin-bottom: 3rem;
@@ -258,7 +231,6 @@
             justify-content: space-between;
             align-items: center;
             gap: 2rem;
-            animation: fadeIn 0.6s ease-out;
         }
 
         .hero-content h1 {
@@ -266,18 +238,7 @@
             font-weight: 700;
             margin-bottom: 1rem;
             color: var(--black);
-            animation: slideInLeft 0.6s ease-out;
-        }
-
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            line-height: 1.2;
         }
 
         .hero-content p {
@@ -285,35 +246,20 @@
             margin-bottom: 1.5rem;
             color: var(--black);
             line-height: 1.6;
-            animation: slideInLeft 0.6s ease-out 0.1s both;
         }
 
         .btn-shop {
             background-color: var(--black);
             color: var(--white);
             padding: 0.75rem 2rem;
-            animation: slideInLeft 0.6s ease-out 0.2s both;
         }
 
         .btn-shop:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0.9;
         }
 
         .hero-image {
             flex: 1;
-            animation: slideInRight 0.6s ease-out;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
         }
 
         .hero-image img {
@@ -329,108 +275,90 @@
             margin-bottom: 2rem;
             text-align: center;
             color: var(--brown-dark);
-            animation: scaleUp 0.5s ease-out;
-        }
-
-        @keyframes scaleUp {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
         }
 
         /* Menu Grid */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
+            gap: 1.5rem;
             margin-bottom: 3rem;
         }
 
-        /* Menu Card with Animations */
+        /* Menu Card */
         .menu-card {
             background-color: var(--white);
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            animation: cardAppear 0.5s ease-out;
-            cursor: pointer;
-        }
-
-        @keyframes cardAppear {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .menu-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-hover);
+            box-shadow: var(--shadow-md);
         }
 
         .menu-card.brown {
             background-color: var(--brown-dark);
             color: var(--white);
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
         }
 
-        .menu-card.brown:hover {
-            box-shadow: var(--shadow-hover);
+        .menu-card.brown .menu-name,
+        .menu-card.brown .menu-description {
+            color: var(--white);
         }
 
         .menu-card.pink-light {
             background-color: var(--pink-light);
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-        }
-
-        .menu-card.pink-light:hover {
-            box-shadow: var(--shadow-hover);
         }
 
         .menu-card.pink-hot {
             background-color: var(--pink-vibrant);
             color: var(--white);
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
         }
 
-        .menu-card.pink-hot:hover {
-            box-shadow: var(--shadow-hover);
+        .menu-card.pink-hot .menu-name,
+        .menu-card.pink-hot .menu-description {
+            color: var(--white);
+        }
+
+        .menu-card.pink-hot .menu-price {
+            color: var(--white);
         }
 
         .menu-name {
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
+            color: var(--black);
         }
 
         .menu-description {
             font-size: 0.85rem;
             margin-bottom: 1rem;
             opacity: 0.9;
+            color: var(--black);
         }
 
         .menu-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: auto;
         }
 
         .menu-price {
             font-size: 1.3rem;
             font-weight: 700;
+            color: var(--pink-vibrant);
+        }
+
+        .menu-card.brown .menu-price,
+        .menu-card.pink-hot .menu-price {
+            color: var(--white);
         }
 
         .btn-add-cart {
@@ -440,28 +368,25 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: opacity 0.2s ease;
             font-weight: 600;
         }
 
         .btn-add-cart:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(225, 95, 140, 0.3);
-        }
-
-        .btn-add-cart:active {
-            transform: scale(0.95);
+            opacity: 0.9;
         }
 
         /* Sidebar with Cart */
         .sidebar-container {
             display: flex;
             gap: 2rem;
-            margin-top: 3rem;
+            margin-top: 2rem;
+            align-items: flex-start;
         }
 
         .main-content {
             flex: 1;
+            min-width: 0;
         }
 
         .sidebar {
@@ -469,11 +394,10 @@
             background-color: var(--white);
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-sm);
             height: fit-content;
             position: sticky;
             top: 100px;
-            animation: slideInRight 0.6s ease-out;
         }
 
         .sidebar-title {
@@ -491,7 +415,6 @@
             align-items: center;
             padding: 0.75rem 0;
             border-bottom: 1px solid var(--pink-light);
-            animation: slideInLeft 0.3s ease-out;
         }
 
         .cart-item-name {
@@ -554,9 +477,8 @@
             background-color: var(--white);
             border-radius: 12px;
             padding: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-sm);
             margin-bottom: 2rem;
-            animation: scaleUp 0.5s ease-out;
         }
 
         .order-form h2 {
@@ -579,18 +501,11 @@
             font-weight: 700;
             padding: 1rem;
             margin-top: 1rem;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
+            transition: opacity 0.2s ease;
         }
 
         .btn-place-order:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .btn-place-order:active {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
+            opacity: 0.9;
         }
 
         /* Receipt Modal */
@@ -619,7 +534,6 @@
             width: 90%;
             max-width: 500px;
             box-shadow: var(--shadow-xl);
-            animation: slideUp 0.3s ease-out;
             border: 3px dashed var(--pink-vibrant);
         }
 
@@ -652,7 +566,6 @@
             padding: 0.75rem 0;
             border-bottom: 1px solid var(--pink-light);
         }
-
         .receipt-item-name {
             font-weight: 600;
         }
@@ -696,13 +609,8 @@
             border-radius: 8px;
             font-weight: 700;
             color: var(--black);
-            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
 
         .btn-close-receipt {
             width: 100%;
@@ -732,7 +640,6 @@
             padding: 1.5rem;
             margin-bottom: 1rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            animation: slideInLeft 0.5s ease-out;
         }
 
         .order-header {
@@ -871,6 +778,44 @@
         </div>
     </nav>
 
+    <!-- Layout Styles -->
+    <style>
+        /* Layout container for menu and cart */
+        .sidebar-container {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            margin-top: 2rem;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        /* Two-column menu grid - proper alignment */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+
     <!-- Login Modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
@@ -885,12 +830,8 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <div class="form-group">
-                    <label for="role">Role</label>
-                    <select id="role" name="role">
-                        <option value="customer">Customer</option>
-                        <option value="admin">Admin</option>
-                    </select>
+                <div class="form-group" style="font-size: 0.85rem; color: #666; margin-top: -0.5rem;">
+                    <em>Role akan ditentukan otomatis oleh server berdasarkan username</em>
                 </div>
                 <button type="submit" class="btn-submit">Login</button>
             </form>
@@ -909,6 +850,7 @@
             <div class="hero-image">
                 <img src="pastry-hero.gif" alt="Pastry Collection" style="width: 100%; height: 300px; object-fit: cover; border-radius: 10px;">
             </div>
+        </div>
 
         <!-- Menu Section -->
         <div id="menuSection" style="display: none;">
@@ -1015,7 +957,7 @@
                 </div>
             </div>
 
-            <div class="receipt-status">🎉 Order Status: <span id="receiptStatus">on_process</span></div>
+            <div class="receipt-status">🎉 Order Status: <span id="receiptStatus">on process</span></div>
 
             <button class="btn-close-receipt" onclick="closeReceipt()">Back to Menu</button>
         </div>
@@ -1025,7 +967,16 @@
         // Configuration
         const API_URL = 'http://localhost:5050/api';
         let authToken = localStorage.getItem('authToken');
-        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let currentUser = null;
+        try {
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                currentUser = JSON.parse(userStr);
+            }
+        } catch (e) {
+            console.error('Error parsing currentUser:', e);
+            currentUser = null;
+        }
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let menuItems = [];
 
@@ -1074,7 +1025,12 @@
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
+
+            // Server determines role, not client
+            if (!username || !password) {
+                alert('Please enter username and password');
+                return;
+            }
 
             try {
                 const response = await fetch(`${API_URL}/login`, {
@@ -1082,7 +1038,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username, password, role })
+                    body: JSON.stringify({ username, password })
                 });
 
                 if (response.ok) {
@@ -1125,6 +1081,12 @@
             document.getElementById('menuSection').style.display = 'none';
         }
 
+        // Format currency helper function
+        function formatCurrency(amount) {
+            // Format: Rp 40.000 (space after Rp, dot as thousand separator, no decimals)
+            return `Rp ${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+        }
+
         function showLoggedInUI() {
             document.getElementById('navLogin').style.display = 'none';
             document.getElementById('navGreeting').style.display = 'block';
@@ -1165,8 +1127,8 @@
                     <div class="menu-name">${item.name}</div>
                     <div class="menu-description">${item.description || 'Delicious pastry'}</div>
                     <div class="menu-footer">
-                        <span class="menu-price">Rp ${item.price.toLocaleString('id-ID')}</span>
-                        <button class="btn-add-cart" onclick="addToCart(${item.id}, '${item.name}', ${item.price})">Add</button>
+                        <span class="menu-price">${formatCurrency(item.price)}</span>
+                        <button class="btn-add-cart" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.price})">Add</button>
                     </div>
                 `;
                 menuGrid.appendChild(card);
@@ -1237,9 +1199,9 @@
             const tax = subtotal * 0.05;
             const total = subtotal + tax;
 
-            document.getElementById('subtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
-            document.getElementById('taxAmount').textContent = `Rp ${tax.toLocaleString('id-ID')}`;
-            document.getElementById('totalAmount').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('taxAmount').textContent = formatCurrency(tax);
+            document.getElementById('totalAmount').textContent = formatCurrency(total);
         }
 
         // Handle Payment Method Change (QR Code)
@@ -1267,12 +1229,23 @@
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
             
             document.getElementById('qrCodeImage').src = qrUrl;
-            document.getElementById('qrAmount').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('qrAmount').textContent = formatCurrency(total);
         }
 
         // Place Order
         async function handlePlaceOrder(event) {
             event.preventDefault();
+
+            // Ensure we have auth token
+            if (!authToken) {
+                authToken = localStorage.getItem('authToken');
+            }
+            
+            if (!authToken || !currentUser) {
+                alert('You must be logged in to place an order. Please login first.');
+                openLoginModal();
+                return;
+            }
 
             if (cart.length === 0) {
                 alert('Your cart is empty');
@@ -1314,9 +1287,18 @@
                     const customerData = await customerResponse.json();
                     customerId = customerData.id;
                 } else {
-                    const errorData = await customerResponse.json();
-                    console.error('Customer creation failed:', errorData);
-                    alert('Failed to create customer record: ' + (errorData.error || 'Unknown error'));
+                    let errorMessage = 'Unknown error';
+                    try {
+                        const errorData = await customerResponse.json();
+                        errorMessage = errorData.error || errorData.message || `HTTP ${customerResponse.status}`;
+                    } catch (e) {
+                        errorMessage = `HTTP ${customerResponse.status}: ${customerResponse.statusText}`;
+                    }
+                    console.error('Customer creation failed:', {
+                        status: customerResponse.status,
+                        error: errorMessage
+                    });
+                    alert(`Failed to create customer record: ${errorMessage}\n\nPlease check if Customer Service is running (port 5001)`);
                     return;
                 }
 
@@ -1338,6 +1320,21 @@
                     }))
                 };
 
+                // Ensure token is still valid
+                if (!authToken) {
+                    authToken = localStorage.getItem('authToken');
+                }
+                
+                if (!authToken) {
+                    alert('Session expired. Please login again.');
+                    logout();
+                    return;
+                }
+
+                // Debug: Log token (first 20 chars only for security)
+                console.log('Placing order with token:', authToken ? authToken.substring(0, 20) + '...' : 'NULL');
+                console.log('Current user:', currentUser);
+
                 const response = await fetch(`${API_URL}/orders`, {
                     method: 'POST',
                     headers: {
@@ -1354,14 +1351,39 @@
                     saveCart();
                     loadOrders();
                 } else {
-                    const errorData = await response.json();
-                    console.error('Order creation failed:', errorData);
-                    alert('Failed to place order: ' + (errorData.error || 'Unknown error'));
-
+                    let errorMessage = 'Unknown error';
+                    let errorData = null;
+                    try {
+                        errorData = await response.json();
+                        errorMessage = errorData.error || errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+                    } catch (e) {
+                        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                    }
+                    console.error('Order creation failed:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        error: errorMessage,
+                        errorData: errorData,
+                        hasToken: !!authToken,
+                        tokenPreview: authToken ? authToken.substring(0, 20) + '...' : 'NULL'
+                    });
+                    
+                    // If 401, suggest re-login
+                    if (response.status === 401) {
+                        alert(`Authentication failed: ${errorMessage}\n\nPlease try logging in again.`);
+                        logout();
+                        openLoginModal();
+                    } else {
+                        alert(`Failed to place order: ${errorMessage}\n\nPlease check:\n1. All services are running\n2. You are logged in\n3. Database is connected`);
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error placing order: ' + error.message);
+                let errorMessage = error.message || 'Network error';
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    errorMessage = 'Cannot connect to server. Please check if all services are running.';
+                }
+                alert(`Error placing order: ${errorMessage}\n\nMake sure:\n1. API Gateway is running (port 5050)\n2. Order Service is running (port 5004)\n3. Customer Service is running (port 5001)\n4. Menu Service is running (port 5003)`);
             }
         }
 
@@ -1399,14 +1421,14 @@
                 itemDiv.innerHTML = `
                     <span class="receipt-item-name">${item.name}</span>
                     <span class="receipt-item-qty">×${item.quantity}</span>
-                    <span class="receipt-item-price">Rp ${itemTotal.toLocaleString('id-ID')}</span>
+                    <span class="receipt-item-price">${formatCurrency(itemTotal)}</span>
                 `;
                 receiptItems.appendChild(itemDiv);
             });
 
-            document.getElementById('receiptSubtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
-            document.getElementById('receiptTax').textContent = `Rp ${tax.toLocaleString('id-ID')}`;
-            document.getElementById('receiptTotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('receiptSubtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('receiptTax').textContent = formatCurrency(tax);
+            document.getElementById('receiptTotal').textContent = formatCurrency(total);
             document.getElementById('receiptPayment').textContent = payment === 'cash' ? 'Cash on Delivery' : 'QR Payment';
             document.getElementById('receiptAddress').textContent = address;
 
@@ -1444,14 +1466,14 @@
                         itemDiv.innerHTML = `
                             <span class="receipt-item-name">${item.name}</span>
                             <span class="receipt-item-qty">×${item.quantity}</span>
-                            <span class="receipt-item-price">Rp ${itemTotal.toLocaleString('id-ID')}</span>
+                            <span class="receipt-item-price">${formatCurrency(itemTotal)}</span>
                         `;
                         receiptItems.appendChild(itemDiv);
                     });
                     
-                    document.getElementById('receiptSubtotal').textContent = `Rp ${receipt.subtotal.toLocaleString('id-ID')}`;
-                    document.getElementById('receiptTax').textContent = `Rp ${receipt.tax.toLocaleString('id-ID')}`;
-                    document.getElementById('receiptTotal').textContent = `Rp ${receipt.total.toLocaleString('id-ID')}`;
+                    document.getElementById('receiptSubtotal').textContent = formatCurrency(receipt.subtotal);
+                    document.getElementById('receiptTax').textContent = formatCurrency(receipt.tax);
+                    document.getElementById('receiptTotal').textContent = formatCurrency(receipt.total);
                     document.getElementById('receiptPayment').textContent = receipt.payment === 'cash' ? 'Cash on Delivery' : 'QR Payment';
                     document.getElementById('receiptAddress').textContent = receipt.address;
                     
@@ -1494,7 +1516,8 @@
             }
 
             orders.forEach(order => {
-                const statusClass = `status-${order.status}`;
+                // Map human-friendly status values to safe CSS class names
+                const statusClass = order.status === 'on process' ? 'status-process' : (order.status === 'on delivery' ? 'status-delivery' : 'status-delivered');
                 const orderCard = document.createElement('div');
                 orderCard.className = 'order-card';
                 orderCard.innerHTML = `
@@ -1511,13 +1534,13 @@
                         <div style="margin-top: 1rem;">
                             <strong>Items:</strong>
                             <ul class="order-items-list">
-                                ${order.items ? order.items.map(item => `<li>Menu Item #${item.menu_id} - Qty: ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`).join('') : '<li>No items</li>'}
+                                ${order.items ? order.items.map(item => `<li>${item.menu_name || `Menu Item #${item.menu_id}`} - Qty: ${item.quantity} (${formatCurrency(item.price)})</li>`).join('') : '<li>No items</li>'}
                             </ul>
                         </div>
                         <div style="margin-top: 1rem; border-top: 1px solid var(--pink-light); padding-top: 1rem;">
-                            <div><strong>Subtotal:</strong> Rp ${(order.total_price - order.tax).toLocaleString('id-ID')}</div>
-                            <div><strong>Tax (5%):</strong> Rp ${order.tax.toLocaleString('id-ID')}</div>
-                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--pink-vibrant); margin-top: 0.5rem;"><strong>Total:</strong> Rp ${order.total_price.toLocaleString('id-ID')}</div>
+                            <div><strong>Subtotal:</strong> ${formatCurrency(order.total_price - order.tax)}</div>
+                            <div><strong>Tax (5%):</strong> ${formatCurrency(order.tax)}</div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--pink-vibrant); margin-top: 0.5rem;"><strong>Total:</strong> ${formatCurrency(order.total_price)}</div>
                         </div>
                     </div>
                 `;
