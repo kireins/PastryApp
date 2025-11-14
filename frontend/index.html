@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastry - Discover New Tastes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Color Palette from Attachment */
+        :root {
+            --brown-dark: #6c3f2b;
+            --pink-light: #f1d2de;
+            --pink-medium: #fld2de;
+            --pink-hot: #faded2;
+            --pink-vibrant: #e15f8c;
+            --brown-medium: #a88076;
+            --green-base: #b4d96f;
+            --cream: #fef8f1;
+            --black: #1a1a1a;
+            --white: #ffffff;
+            
+            /* Shadow variables */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+            --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.2);
+            --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.24);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--cream);
+            color: var(--black);
+            overflow-x: hidden;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: var(--green-base);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--black);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            display: block;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .btn-login {
+            background-color: var(--black);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--black);
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background-color: var(--pink-vibrant);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-logout:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--brown-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--pink-light);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--pink-vibrant);
+            box-shadow: 0 0 10px rgba(225, 95, 140, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--pink-vibrant);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(225, 95, 140, 0.3);
+        }
+
+        .close {
+            float: right;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--black);
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--pink-vibrant);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--green-base);
+            padding: 3rem;
+            border-radius: 15px;
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .hero-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--black);
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-content p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--black);
+            line-height: 1.6;
+            animation: slideInLeft 0.6s ease-out 0.1s both;
+        }
+
+        .btn-shop {
+            background-color: var(--black);
+            color: var(--white);
+            padding: 0.75rem 2rem;
+            animation: slideInLeft 0.6s ease-out 0.2s both;
+        }
+
+        .btn-shop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-image {
+            flex: 1;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--brown-dark);
+            animation: scaleUp 0.5s ease-out;
+        }
+
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Menu Card with Animations */
+        .menu-card {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            animation: cardAppear 0.5s ease-out;
+            cursor: pointer;
+        }
+
+        @keyframes cardAppear {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .menu-card.brown {
+            background-color: var(--brown-dark);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .menu-card.brown:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .menu-card.pink-light {
+            background-color: var(--pink-light);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .menu-card.pink-light:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .menu-card.pink-hot {
+            background-color: var(--pink-vibrant);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .menu-card.pink-hot:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .menu-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-description {
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .menu-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .btn-add-cart {
+            background-color: var(--pink-vibrant);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-add-cart:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(225, 95, 140, 0.3);
+        }
+
+        .btn-add-cart:active {
+            transform: scale(0.95);
+        }
+
+        /* Sidebar with Cart */
+        .sidebar-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        .sidebar-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--brown-dark);
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--pink-light);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--pink-light);
+            animation: slideInLeft 0.3s ease-out;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .cart-item-qty {
+            background-color: var(--pink-light);
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            margin: 0 0.5rem;
+        }
+
+        .btn-remove-item {
+            background-color: var(--pink-vibrant);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .btn-remove-item:hover {
+            transform: scale(1.2);
+        }
+
+        .cart-summary {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--brown-dark);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--pink-vibrant);
+        }
+
+        /* Order Form */
+        .order-form {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            animation: scaleUp 0.5s ease-out;
+        }
+
+        .order-form h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brown-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .btn-place-order {
+            grid-column: 1 / -1;
+            background-color: var(--green-base);
+            color: var(--black);
+            font-weight: 700;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .btn-place-order:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-place-order:active {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Receipt Modal */
+        .receipt-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .receipt-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .receipt-content {
+            background-color: var(--white);
+            padding: 2.5rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s ease-out;
+            border: 3px dashed var(--pink-vibrant);
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--pink-light);
+        }
+
+        .receipt-header h2 {
+            font-size: 1.5rem;
+            color: var(--green-base);
+            margin-bottom: 0.5rem;
+        }
+
+        .receipt-order-id {
+            font-size: 0.9rem;
+            color: var(--brown-dark);
+            font-weight: 600;
+        }
+
+        .receipt-items {
+            margin: 1.5rem 0;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--pink-light);
+        }
+
+        .receipt-item-name {
+            font-weight: 600;
+        }
+
+        .receipt-item-qty {
+            color: var(--brown-dark);
+            margin: 0 1rem;
+        }
+
+        .receipt-item-price {
+            font-weight: 700;
+            color: var(--pink-vibrant);
+        }
+
+        .receipt-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--brown-dark);
+        }
+
+        .receipt-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--pink-vibrant);
+            margin-top: 0.75rem;
+        }
+
+        .receipt-status {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--green-base);
+            border-radius: 8px;
+            font-weight: 700;
+            color: var(--black);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .btn-close-receipt {
+            width: 100%;
+            background-color: var(--brown-dark);
+            color: var(--white);
+            padding: 0.75rem;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close-receipt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 63, 43, 0.3);
+        }
+
+        /* Orders History */
+        .orders-section {
+            margin-top: 3rem;
+        }
+
+        .order-card {
+            background-color: var(--white);
+            border-left: 5px solid var(--pink-vibrant);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--pink-light);
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: var(--brown-dark);
+            font-size: 1.1rem;
+        }
+
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-process {
+            background-color: #ffd700;
+            color: var(--black);
+        }
+
+        .status-delivery {
+            background-color: #87ceeb;
+            color: var(--black);
+        }
+
+        .status-delivered {
+            background-color: #90ee90;
+            color: var(--black);
+        }
+
+        .order-details {
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .order-items-list {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .order-items-list li {
+            margin-bottom: 0.5rem;
+            color: var(--brown-dark);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+            }
+
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .sidebar-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+            }
+
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--brown-dark);
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--pink-light);
+            border-top: 3px solid var(--pink-vibrant);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">
+            <img src="pastry-logo.png" alt="Pastry Logo" class="nav-logo">
+            <span>Pastry</span>
+        </div>
+        <div class="nav-buttons">
+            <span id="navGreeting" style="display: none;">
+                <span class="user-info">
+                    <span class="user-name" id="userName"></span>
+                    <button class="btn btn-logout" onclick="logout()">Logout</button>
+                </span>
+            </span>
+            <span id="navLogin" style="display: none;">
+                <button class="btn btn-login" onclick="openLoginModal()">Login</button>
+            </span>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <div class="modal-header">Welcome to Pastry</div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role">
+                        <option value="customer">Customer</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div id="heroSection" class="hero" style="display: none;">
+            <div class="hero-content">
+                <h1>DISCOVER<br>NEW<br>TASTES</h1>
+                <p>Original spice blends suitable for both home and professional cooking</p>
+                <button class="btn btn-shop" onclick="document.getElementById('menuSection').scrollIntoView({behavior: 'smooth'})">SHOP ALL PRODUCTS</button>
+            </div>
+            <div class="hero-image">
+                <img src="pastry-hero.gif" alt="Pastry Collection" style="width: 100%; height: 300px; object-fit: cover; border-radius: 10px;">
+            </div>
+
+        <!-- Menu Section -->
+        <div id="menuSection" style="display: none;">
+            <h2 class="section-title">Our Menu</h2>
+            <div class="sidebar-container">
+                <div class="main-content">
+                    <div id="menuGrid" class="menu-grid"></div>
+                </div>
+
+                <!-- Cart Sidebar -->
+                <div class="sidebar">
+                    <div class="sidebar-title">🛒 Your Cart</div>
+                    <div id="cartItems"></div>
+                    <div id="cartEmpty" class="empty-state">
+                        <p>Your cart is empty</p>
+                    </div>
+                    <div id="cartSummary" class="cart-summary" style="display: none;">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">Rp 0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (5%):</span>
+                            <span id="taxAmount">Rp 0</span>
+                        </div>
+                        <div class="summary-total">
+                            <span>Total:</span>
+                            <span id="totalAmount">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Form -->
+            <div id="orderFormSection" style="display: none; margin-top: 3rem;">
+                <div class="order-form">
+                    <h2>Delivery Details</h2>
+                    <form onsubmit="handlePlaceOrder(event)" class="form-grid">
+                        <input type="text" id="customerName" placeholder="Full Name" required>
+                        <input type="email" id="customerEmail" placeholder="Email Address" required>
+                        <input type="tel" id="customerPhone" placeholder="Phone Number" required>
+                        <textarea id="deliveryAddress" placeholder="Delivery Address" style="grid-column: 1 / -1;" rows="3" required></textarea>
+                        <select id="paymentMethod" required onchange="handlePaymentMethodChange()">
+                            <option value="">Select Payment Method</option>
+                            <option value="cash">Cash on Delivery</option>
+                            <option value="qr">QR Payment</option>
+                        </select>
+                        
+                        <!-- QR Code Section -->
+                        <div id="qrSection" style="display: none; grid-column: 1 / -1; text-align: center; padding: 1.5rem; background-color: var(--cream); border-radius: 8px; border: 2px dashed var(--pink-light);">
+                            <h4 style="margin-bottom: 1rem; color: var(--brown-dark);">Scan QR Code untuk Pembayaran</h4>
+                            <div id="qrCodeDisplay" style="margin-bottom: 1rem;">
+                                <img id="qrCodeImage" src="" alt="QR Code" style="width: 200px; height: 200px; border: 2px solid var(--pink-vibrant); border-radius: 8px;">
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--black);">Total: <span id="qrAmount" style="font-weight: 700; color: var(--pink-vibrant);">Rp 0</span></p>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-place-order">Place Order</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Orders History -->
+            <div id="ordersSection" class="orders-section" style="display: none;">
+                <h2 class="section-title">Your Orders</h2>
+                <div id="ordersContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="receipt-modal">
+        <div class="receipt-content">
+            <div class="receipt-header">
+                <h2>✅ Order Confirmed</h2>
+                <p class="receipt-order-id">Order ID: <span id="receiptOrderId"></span></p>
+            </div>
+
+            <div class="receipt-items">
+                <div style="font-weight: 600; margin-bottom: 1rem; border-bottom: 1px solid var(--pink-light); padding-bottom: 0.5rem;">Items Ordered:</div>
+                <div id="receiptItems"></div>
+            </div>
+
+            <div class="receipt-footer">
+                <div class="receipt-summary">
+                    <span>Subtotal:</span>
+                    <span id="receiptSubtotal">Rp 0</span>
+                </div>
+                <div class="receipt-summary">
+                    <span>Tax (5%):</span>
+                    <span id="receiptTax">Rp 0</span>
+                </div>
+                <div class="receipt-total">
+                    <span>Total:</span>
+                    <span id="receiptTotal">Rp 0</span>
+                </div>
+                <div class="receipt-summary" style="margin-top: 1rem;">
+                    <span>Payment Method:</span>
+                    <span id="receiptPayment" style="font-weight: 700; color: var(--green-base);"></span>
+                </div>
+                <div class="receipt-summary">
+                    <span>Delivery Address:</span>
+                    <span id="receiptAddress" style="font-weight: 600; color: var(--brown-dark);"></span>
+                </div>
+            </div>
+
+            <div class="receipt-status">🎉 Order Status: <span id="receiptStatus">on_process</span></div>
+
+            <button class="btn-close-receipt" onclick="closeReceipt()">Back to Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'http://localhost:5050/api';
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let menuItems = [];
+
+        // Listen for storage changes from other windows/tabs
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'authToken' || event.key === 'currentUser') {
+                // Update local variables from storage
+                authToken = localStorage.getItem('authToken');
+                currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                
+                // Update UI to reflect the change
+                if (authToken && currentUser) {
+                    showLoggedInUI();
+                    loadMenu();
+                    loadOrders();
+                } else {
+                    showLogoutUI();
+                }
+            }
+        });
+
+        // Initialize app
+        function initApp() {
+            if (authToken && currentUser) {
+                showLoggedInUI();
+                loadMenu();
+                loadOrders();
+                // Restore receipt if it was saved
+                restoreReceiptIfExists();
+            } else {
+                showLogoutUI();
+            }
+        }
+
+        // Login Modal Functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('show');
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password, role })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access_token;
+                    currentUser = { username: data.username, role: data.role };
+
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    closeLoginModal();
+
+                    // Redirect to admin if admin role
+                    if (currentUser.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        showLoggedInUI();
+                        loadMenu();
+                        loadOrders();
+                    }
+                } else {
+                    const data = await response.json();
+                    alert('Login failed: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Login error: ' + error.message);
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            cart = [];
+            localStorage.removeItem('cart');
+            showLogoutUI();
+            document.getElementById('heroSection').style.display = 'none';
+            document.getElementById('menuSection').style.display = 'none';
+        }
+
+        function showLoggedInUI() {
+            document.getElementById('navLogin').style.display = 'none';
+            document.getElementById('navGreeting').style.display = 'block';
+            document.getElementById('userName').textContent = `Welcome, ${currentUser.username}!`;
+            document.getElementById('heroSection').style.display = 'flex';
+            document.getElementById('menuSection').style.display = 'block';
+        }
+
+        function showLogoutUI() {
+            document.getElementById('navLogin').style.display = 'block';
+            document.getElementById('navGreeting').style.display = 'none';
+        }
+
+        // Load Menu
+        async function loadMenu() {
+            try {
+                const response = await fetch(`${API_URL}/menus`);
+                if (response.ok) {
+                    menuItems = await response.json();
+                    renderMenu();
+                }
+            } catch (error) {
+                console.error('Error loading menu:', error);
+            }
+        }
+
+        // Render Menu
+        function renderMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            menuGrid.innerHTML = '';
+
+            const colors = ['brown', 'pink-light', 'pink-light', 'pink-hot'];
+
+            menuItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `menu-card ${colors[index % colors.length]}`;
+                card.innerHTML = `
+                    <div class="menu-name">${item.name}</div>
+                    <div class="menu-description">${item.description || 'Delicious pastry'}</div>
+                    <div class="menu-footer">
+                        <span class="menu-price">Rp ${item.price.toLocaleString('id-ID')}</span>
+                        <button class="btn-add-cart" onclick="addToCart(${item.id}, '${item.name}', ${item.price})">Add</button>
+                    </div>
+                `;
+                menuGrid.appendChild(card);
+            });
+        }
+
+        // Cart Functions
+        function addToCart(menuId, name, price) {
+            const existingItem = cart.find(item => item.menu_id === menuId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ menu_id: menuId, name, price, quantity: 1 });
+            }
+
+            saveCart();
+            renderCart();
+            document.getElementById('orderFormSection').style.display = 'block';
+        }
+
+        function removeFromCart(menuId) {
+            cart = cart.filter(item => item.menu_id !== menuId);
+            saveCart();
+            renderCart();
+
+            if (cart.length === 0) {
+                document.getElementById('orderFormSection').style.display = 'none';
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function renderCart() {
+            const cartItems = document.getElementById('cartItems');
+            const cartEmpty = document.getElementById('cartEmpty');
+            const cartSummary = document.getElementById('cartSummary');
+
+            cartItems.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartEmpty.style.display = 'block';
+                cartSummary.style.display = 'none';
+                return;
+            }
+
+            cartEmpty.style.display = 'none';
+            cartSummary.style.display = 'block';
+
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <span class="cart-item-name">${item.name}</span>
+                    <span class="cart-item-qty">×${item.quantity}</span>
+                    <button class="btn-remove-item" onclick="removeFromCart(${item.menu_id})">×</button>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+
+            updateCartSummary();
+        }
+
+        function updateCartSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.05;
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('taxAmount').textContent = `Rp ${tax.toLocaleString('id-ID')}`;
+            document.getElementById('totalAmount').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        // Handle Payment Method Change (QR Code)
+        function handlePaymentMethodChange() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const qrSection = document.getElementById('qrSection');
+            
+            if (paymentMethod === 'qr') {
+                qrSection.style.display = 'block';
+                generateQRCode();
+            } else {
+                qrSection.style.display = 'none';
+            }
+        }
+
+        // Generate QR Code
+        function generateQRCode() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.05;
+            const total = subtotal + tax;
+            
+            // Use QR code API (qrserver.com)
+            const username = currentUser ? currentUser.username : 'Guest';
+            const qrData = `PASTRY|${username}|${total}|${new Date().toISOString()}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+            
+            document.getElementById('qrCodeImage').src = qrUrl;
+            document.getElementById('qrAmount').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        // Place Order
+        async function handlePlaceOrder(event) {
+            event.preventDefault();
+
+            if (cart.length === 0) {
+                alert('Your cart is empty');
+                return;
+            }
+
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerEmail = document.getElementById('customerEmail').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+            const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            // Validate all fields are filled
+            if (!customerName || !customerEmail || !customerPhone || !deliveryAddress || !paymentMethod) {
+                alert('Please fill in all delivery details');
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.05;
+            const total = subtotal + tax;
+
+            try {
+                // Step 1: Create customer record in database
+                const customerResponse = await fetch(`${API_URL}/customers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: customerName,
+                        email: customerEmail,
+                        phone: customerPhone
+                    })
+                });
+
+                let customerId;
+                if (customerResponse.ok) {
+                    const customerData = await customerResponse.json();
+                    customerId = customerData.id;
+                } else {
+                    const errorData = await customerResponse.json();
+                    console.error('Customer creation failed:', errorData);
+                    alert('Failed to create customer record: ' + (errorData.error || 'Unknown error'));
+                    return;
+                }
+
+                // Step 2: Create order with the new customer_id
+                const orderData = {
+                    customer_id: customerId,
+                    username: currentUser.username,
+                    customer_name: customerName,
+                    customer_email: customerEmail,
+                    customer_phone: customerPhone,
+                    delivery_address: deliveryAddress,
+                    payment_method: paymentMethod,
+                    total_price: total,
+                    tax: tax,
+                    items: cart.map(item => ({
+                        menu_id: item.menu_id,
+                        quantity: item.quantity,
+                        price: item.price
+                    }))
+                };
+
+                const response = await fetch(`${API_URL}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showReceipt(data.id, customerName, customerEmail, customerPhone, deliveryAddress, paymentMethod, subtotal, tax, total);
+                    cart = [];
+                    saveCart();
+                    loadOrders();
+                } else {
+                    const errorData = await response.json();
+                    console.error('Order creation failed:', errorData);
+                    alert('Failed to place order: ' + (errorData.error || 'Unknown error'));
+
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error placing order: ' + error.message);
+            }
+        }
+
+        // Receipt Functions
+        function showReceipt(orderId, name, email, phone, address, payment, subtotal, tax, total) {
+            // Save receipt data to localStorage for persistence
+            const receiptData = {
+                orderId,
+                name,
+                email,
+                phone,
+                address,
+                payment,
+                subtotal,
+                tax,
+                total,
+                items: cart.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('lastReceipt', JSON.stringify(receiptData));
+
+            document.getElementById('receiptOrderId').textContent = orderId;
+
+            const receiptItems = document.getElementById('receiptItems');
+            receiptItems.innerHTML = '';
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'receipt-item';
+                itemDiv.innerHTML = `
+                    <span class="receipt-item-name">${item.name}</span>
+                    <span class="receipt-item-qty">×${item.quantity}</span>
+                    <span class="receipt-item-price">Rp ${itemTotal.toLocaleString('id-ID')}</span>
+                `;
+                receiptItems.appendChild(itemDiv);
+            });
+
+            document.getElementById('receiptSubtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('receiptTax').textContent = `Rp ${tax.toLocaleString('id-ID')}`;
+            document.getElementById('receiptTotal').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('receiptPayment').textContent = payment === 'cash' ? 'Cash on Delivery' : 'QR Payment';
+            document.getElementById('receiptAddress').textContent = address;
+
+            document.getElementById('receiptModal').classList.add('show');
+        }
+
+        function closeReceipt() {
+            document.getElementById('receiptModal').classList.remove('show');
+            // Clear the stored receipt
+            localStorage.removeItem('lastReceipt');
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerEmail').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('deliveryAddress').value = '';
+            document.getElementById('paymentMethod').value = '';
+            renderCart();
+        }
+
+        // Restore receipt from localStorage if exists
+        function restoreReceiptIfExists() {
+            const lastReceipt = localStorage.getItem('lastReceipt');
+            if (lastReceipt) {
+                try {
+                    const receipt = JSON.parse(lastReceipt);
+                    // Display the receipt modal with saved data
+                    document.getElementById('receiptOrderId').textContent = receipt.orderId;
+                    
+                    const receiptItems = document.getElementById('receiptItems');
+                    receiptItems.innerHTML = '';
+                    
+                    receipt.items.forEach(item => {
+                        const itemTotal = item.price * item.quantity;
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'receipt-item';
+                        itemDiv.innerHTML = `
+                            <span class="receipt-item-name">${item.name}</span>
+                            <span class="receipt-item-qty">×${item.quantity}</span>
+                            <span class="receipt-item-price">Rp ${itemTotal.toLocaleString('id-ID')}</span>
+                        `;
+                        receiptItems.appendChild(itemDiv);
+                    });
+                    
+                    document.getElementById('receiptSubtotal').textContent = `Rp ${receipt.subtotal.toLocaleString('id-ID')}`;
+                    document.getElementById('receiptTax').textContent = `Rp ${receipt.tax.toLocaleString('id-ID')}`;
+                    document.getElementById('receiptTotal').textContent = `Rp ${receipt.total.toLocaleString('id-ID')}`;
+                    document.getElementById('receiptPayment').textContent = receipt.payment === 'cash' ? 'Cash on Delivery' : 'QR Payment';
+                    document.getElementById('receiptAddress').textContent = receipt.address;
+                    
+                    document.getElementById('receiptModal').classList.add('show');
+                } catch (error) {
+                    console.error('Error restoring receipt:', error);
+                }
+            }
+        }
+
+        // Load Orders
+        async function loadOrders() {
+            if (!authToken || currentUser.role !== 'customer') return;
+
+            try {
+                const response = await fetch(`${API_URL}/orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const orders = await response.json();
+                    renderOrders(orders);
+                    document.getElementById('ordersSection').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        // Render Orders
+        function renderOrders(orders) {
+            const ordersContainer = document.getElementById('ordersContainer');
+            ordersContainer.innerHTML = '';
+
+            if (orders.length === 0) {
+                ordersContainer.innerHTML = '<div class="empty-state"><p>No orders yet</p></div>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const statusClass = `status-${order.status}`;
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <span class="order-id">Order #${order.id}</span>
+                        <span class="order-status ${statusClass}">${order.status.toUpperCase()}</span>
+                    </div>
+                    <div class="order-details">
+                        <div><strong>Name:</strong> ${order.customer_name}</div>
+                        <div><strong>Email:</strong> ${order.customer_email}</div>
+                        <div><strong>Phone:</strong> ${order.customer_phone}</div>
+                        <div><strong>Address:</strong> ${order.delivery_address}</div>
+                        <div><strong>Payment:</strong> ${order.payment_method === 'cash' ? 'Cash on Delivery' : 'QR Payment'}</div>
+                        <div style="margin-top: 1rem;">
+                            <strong>Items:</strong>
+                            <ul class="order-items-list">
+                                ${order.items ? order.items.map(item => `<li>Menu Item #${item.menu_id} - Qty: ${item.quantity} (Rp ${item.price.toLocaleString('id-ID')})</li>`).join('') : '<li>No items</li>'}
+                            </ul>
+                        </div>
+                        <div style="margin-top: 1rem; border-top: 1px solid var(--pink-light); padding-top: 1rem;">
+                            <div><strong>Subtotal:</strong> Rp ${(order.total_price - order.tax).toLocaleString('id-ID')}</div>
+                            <div><strong>Tax (5%):</strong> Rp ${order.tax.toLocaleString('id-ID')}</div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--pink-vibrant); margin-top: 0.5rem;"><strong>Total:</strong> Rp ${order.total_price.toLocaleString('id-ID')}</div>
+                        </div>
+                    </div>
+                `;
+                ordersContainer.appendChild(orderCard);
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initApp);
+        renderCart();
+
+        // Auto-refresh orders every 10 seconds
+        setInterval(() => {
+            if (authToken && currentUser && currentUser.role === 'customer') {
+                loadOrders();
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

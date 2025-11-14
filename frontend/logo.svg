@@ -1,0 +1,20 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pastry/Croissant Shape -->
+  <defs>
+    <linearGradient id="croissantGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e15f8c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d9477a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main croissant shape -->
+  <path d="M 20 6 Q 28 10 30 20 Q 28 30 20 34 Q 12 30 10 20 Q 12 10 20 6" fill="url(#croissantGrad)" stroke="#6c3f2b" stroke-width="0.5"/>
+  
+  <!-- Croissant layers/lines for texture -->
+  <path d="M 15 15 Q 20 14 25 15" stroke="#6c3f2b" stroke-width="0.8" fill="none" opacity="0.6"/>
+  <path d="M 14 20 Q 20 19 26 20" stroke="#6c3f2b" stroke-width="0.8" fill="none" opacity="0.6"/>
+  <path d="M 15 25 Q 20 24 25 25" stroke="#6c3f2b" stroke-width="0.8" fill="none" opacity="0.6"/>
+  
+  <!-- Shiny highlight -->
+  <ellipse cx="16" cy="14" rx="3" ry="2" fill="white" opacity="0.4"/>
+</svg>

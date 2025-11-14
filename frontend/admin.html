@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastry Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Color Palette */
+        :root {
+            --brown-dark: #6c3f2b;
+            --pink-light: #f1d2de;
+            --pink-hot: #faded2;
+            --pink-vibrant: #e15f8c;
+            --brown-medium: #a88076;
+            --green-base: #b4d96f;
+            --cream: #fef8f1;
+            --black: #1a1a1a;
+            --white: #ffffff;
+            
+            /* Shadow variables */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+            --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.2);
+            --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.24);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--cream);
+            color: var(--black);
+        }
+
+        /* Navigation */
+        nav {
+            background-color: var(--green-base);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--black);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            display: block;
+        }
+
+        .nav-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            background-color: var(--pink-vibrant);
+            color: var(--white);
+        }
+
+        .btn-logout:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(225, 95, 140, 0.3);
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--brown-dark);
+            color: var(--white);
+            padding: 2rem 1rem;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--pink-vibrant);
+            box-shadow: 0 4px 10px rgba(225, 95, 140, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Header */
+        .dashboard-header {
+            margin-bottom: 2rem;
+            animation: slideInDown 0.5s ease-out 0.1s both;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--brown-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            color: var(--brown-medium);
+            font-size: 0.95rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            animation: cardAppear 0.5s ease-out;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px);
+        }
+
+        @keyframes cardAppear {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--brown-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--pink-vibrant);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            animation: slideInUp 0.5s ease-out 0.2s both;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .filter-input {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--pink-light);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--pink-vibrant);
+            box-shadow: 0 0 10px rgba(225, 95, 140, 0.2);
+        }
+
+        .btn-filter {
+            background-color: var(--green-base);
+            color: var(--black);
+            padding: 0.75rem 1.5rem;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(180, 217, 111, 0.3);
+        }
+
+        .btn-refresh {
+            background-color: var(--brown-dark);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            margin-left: auto;
+        }
+
+        .btn-refresh:hover {
+            transform: rotate(5deg);
+            box-shadow: 0 5px 15px rgba(108, 63, 43, 0.3);
+        }
+
+        /* Table Container */
+        .table-container {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.5s ease-out 0.3s both;
+            overflow-x: auto;
+            overflow-y: visible;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--brown-dark);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        th {
+            padding: 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--pink-light);
+            transition: all 0.3s ease;
+        }
+
+        tbody tr {
+            animation: rowAppear 0.3s ease-out;
+        }
+
+        @keyframes rowAppear {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        tbody tr:hover {
+            background-color: var(--pink-light);
+            box-shadow: inset 0 0 10px rgba(225, 95, 140, 0.1);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+        }
+
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .status-process {
+            background-color: #ffd700;
+            color: var(--black);
+        }
+
+        .status-delivery {
+            background-color: #87ceeb;
+            color: var(--black);
+        }
+
+        .status-delivered {
+            background-color: #90ee90;
+            color: var(--black);
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--white);
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border-radius: 8px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            color: var(--black);
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--pink-light);
+            cursor: pointer;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--pink-light);
+            padding-left: 1.5rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-view {
+            background-color: var(--green-base);
+            color: var(--black);
+        }
+
+        .btn-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(180, 217, 111, 0.3);
+        }
+
+        .btn-delete {
+            background-color: var(--pink-vibrant);
+            color: var(--white);
+        }
+
+        .btn-delete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(225, 95, 140, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 15px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--brown-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close {
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--black);
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--pink-vibrant);
+        }
+
+        .modal-body {
+            color: var(--black);
+        }
+
+        .modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-section-title {
+            font-weight: 700;
+            color: var(--brown-dark);
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid var(--pink-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .modal-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--pink-light);
+        }
+
+        .modal-item:last-child {
+            border-bottom: none;
+        }
+
+        .modal-item-label {
+            font-weight: 600;
+            color: var(--brown-dark);
+        }
+
+        .modal-item-value {
+            color: var(--black);
+        }
+
+        .order-items-list {
+            list-style: none;
+            margin-top: 0.75rem;
+        }
+
+        .order-items-list li {
+            padding: 0.5rem;
+            background-color: var(--pink-light);
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            color: var(--black);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--brown-dark);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--pink-light);
+            border-top: 3px solid var(--pink-vibrant);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+                display: flex;
+                gap: 2rem;
+                overflow-x: auto;
+            }
+
+            .sidebar-section {
+                margin-bottom: 0;
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-section {
+                flex-direction: column;
+            }
+
+            .filter-input, .btn-filter, .btn-refresh {
+                width: 100%;
+            }
+
+            .btn-refresh {
+                margin-left: 0;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-small {
+                width: 100%;
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: var(--black);
+            color: var(--white);
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -50px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-brand">
+            <img src="logo.svg" alt="Pastry Logo" class="nav-logo">
+            <span>🥐 Pastry</span>
+        </div>
+        <div class="nav-title">Admin Dashboard</div>
+        <div>
+            <span id="adminName" style="margin-right: 1rem; font-weight: 600;"></span>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Dashboard Layout -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Navigation</div>
+                <div class="sidebar-item active" onclick="showSection('overview')">📊 Overview</div>
+                <div class="sidebar-item" onclick="showSection('orders')">📋 All Orders</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Overview Section -->
+            <div id="overviewSection">
+                <div class="dashboard-header">
+                    <h1 class="header-title">Dashboard</h1>
+                    <p class="header-subtitle">Welcome back! Here's your order overview</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value" id="totalOrdersStat">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">On Process</div>
+                        <div class="stat-value" id="processOrdersStat">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">On Delivery</div>
+                        <div class="stat-value" id="deliveryOrdersStat">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Delivered</div>
+                        <div class="stat-value" id="deliveredOrdersStat">0</div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Section -->
+                <div style="background-color: var(--white); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); animation: slideInUp 0.5s ease-out 0.3s both;">
+                    <h3 style="color: var(--brown-dark); margin-bottom: 1rem; font-size: 1.2rem;">Quick Insights</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="background-color: #ffd700; padding: 1rem; border-radius: 8px; text-align: center; color: var(--black); font-weight: 600; box-shadow: var(--shadow-md); transition: all 0.3s ease;" onmouseover="this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.boxShadow='var(--shadow-md)'">
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Average Orders</div>
+                            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 0.5rem;" id="avgOrders">0</div>
+                        </div>
+                        <div style="background-color: #87ceeb; padding: 1rem; border-radius: 8px; text-align: center; color: var(--black); font-weight: 600; box-shadow: var(--shadow-md); transition: all 0.3s ease;" onmouseover="this.style.boxShadow='var(--shadow-hover)'" onmouseout="this.style.boxShadow='var(--shadow-md)'">
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Pending Delivery</div>
+                            <div style="font-size: 1.8rem; font-weight: 700; margin-top: 0.5rem;" id="pendingDelivery">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="ordersSection" style="display: none;">
+                <div class="dashboard-header">
+                    <h1 class="header-title">Orders Management</h1>
+                    <p class="header-subtitle">Manage all customer orders</p>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <input type="text" class="filter-input" id="searchOrderId" placeholder="🔍 Search by Order ID" onkeyup="filterOrders()">
+                    <select class="filter-input" id="statusFilter" onchange="filterOrders()">
+                        <option value="">All Status</option>
+                        <option value="on_process">On Process</option>
+                        <option value="on_delivery">On Delivery</option>
+                        <option value="delivered">Delivered</option>
+                    </select>
+                    <button class="btn btn-refresh" onclick="refreshOrders()">🔄 Refresh</button>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr>
+                                <td colspan="7" class="empty-state" style="border-bottom: none;">
+                                    <div class="empty-state-icon">📭</div>
+                                    <p>No orders found</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Order Details #<span id="modalOrderId"></span></span>
+                <span class="close" onclick="closeOrderModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'http://localhost:5050/api';
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let allOrders = [];
+
+        // Listen for storage changes from other windows/tabs
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'authToken' || event.key === 'currentUser') {
+                // Update local variables from storage
+                authToken = localStorage.getItem('authToken');
+                currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                
+                // Update UI to reflect the change
+                if (authToken && currentUser) {
+                    // Update user display if exists
+                    const userElement = document.getElementById('userName');
+                    if (userElement && currentUser) {
+                        userElement.textContent = `Admin: ${currentUser.username}`;
+                    }
+                } else {
+                    // Redirect if logged out in another window
+                    window.location.replace('index.html');
+                }
+            }
+        });
+
+        // Initialize
+        function init() {
+            // Check authentication
+            if (!authToken) {
+                console.log('No auth token found, redirecting to customer page');
+                window.location.replace('index.html');
+                return;
+            }
+
+            if (!currentUser) {
+                console.log('No current user found, redirecting to customer page');
+                window.location.replace('index.html');
+                return;
+            }
+
+            // Check if user is admin
+            if (currentUser.role !== 'admin') {
+                console.log(`User role is ${currentUser.role}, not admin. Redirecting to customer page`);
+                window.location.replace('index.html');
+                return;
+            }
+
+            console.log(`✅ Admin authenticated: ${currentUser.username}`);
+            document.getElementById('adminName').textContent = `Admin: ${currentUser.username}`;
+            loadOrders();
+
+            // Auto-refresh every 10 seconds
+            setInterval(loadOrders, 10000);
+        }
+
+        // Load Orders
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_URL}/orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    allOrders = await response.json();
+                    renderOrders();
+                    updateStats();
+                } else if (response.status === 401) {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        // Render Orders
+        function renderOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+
+            if (allOrders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state" style="border-bottom: none;">
+                            <div class="empty-state-icon">📭</div>
+                            <p>No orders found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            allOrders.forEach((order, index) => {
+                const row = document.createElement('tr');
+                row.style.animationDelay = `${index * 0.05}s`;
+
+                const statusClass = `status-${order.status}`;
+                const itemCount = order.items ? order.items.length : 0;
+
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${order.customer_name}</td>
+                    <td>${itemCount} item(s)</td>
+                    <td>Rp ${order.total_price.toLocaleString('id-ID')}</td>
+                    <td>
+                        <div class="dropdown">
+                            <span class="status-badge ${statusClass}" onclick="toggleDropdown(event)">
+                                ${order.status.toUpperCase()}
+                            </span>
+                            <div class="dropdown-content" data-order-id="${order.id}">
+                                <div class="dropdown-item" onclick="updateOrderStatus(${order.id}, 'on_process')">On Process</div>
+                                <div class="dropdown-item" onclick="updateOrderStatus(${order.id}, 'on_delivery')">On Delivery</div>
+                                <div class="dropdown-item" onclick="updateOrderStatus(${order.id}, 'delivered')">Delivered</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${order.delivery_address}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-small btn-view" onclick="viewOrderDetails(${order.id})">View</button>
+                            <button class="btn-small btn-delete" onclick="deleteOrder(${order.id})">Delete</button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update Stats
+        function updateStats() {
+            const total = allOrders.length;
+            const process = allOrders.filter(o => o.status === 'on_process').length;
+            const delivery = allOrders.filter(o => o.status === 'on_delivery').length;
+            const delivered = allOrders.filter(o => o.status === 'delivered').length;
+
+            document.getElementById('totalOrdersStat').textContent = total;
+            document.getElementById('processOrdersStat').textContent = process;
+            document.getElementById('deliveryOrdersStat').textContent = delivery;
+            document.getElementById('deliveredOrdersStat').textContent = delivered;
+            document.getElementById('avgOrders').textContent = total > 0 ? Math.round(total / 3) : 0;
+            document.getElementById('pendingDelivery').textContent = process + delivery;
+        }
+
+        // Toggle Dropdown
+        function toggleDropdown(event) {
+            const dropdown = event.target.nextElementSibling;
+            document.querySelectorAll('.dropdown-content').forEach(d => {
+                if (d !== dropdown) d.classList.remove('show');
+            });
+            dropdown.classList.toggle('show');
+        }
+
+        // Update Order Status
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (response.ok) {
+                    loadOrders();
+                    document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+                } else {
+                    alert('Failed to update status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating status: ' + error.message);
+            }
+        }
+
+        // View Order Details
+        function viewOrderDetails(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById('modalOrderId').textContent = order.id;
+
+            const statusClass = `status-${order.status}`;
+            let modalBody = `
+                <div class="modal-section">
+                    <div class="modal-section-title">Order Information</div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Order ID:</span>
+                        <span class="modal-item-value">#${order.id}</span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Status:</span>
+                        <span class="status-badge ${statusClass}">${order.status.toUpperCase()}</span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Created:</span>
+                        <span class="modal-item-value">${new Date(order.created_at).toLocaleString('en-ID')}</span>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Customer Information</div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Name:</span>
+                        <span class="modal-item-value">${order.customer_name}</span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Email:</span>
+                        <span class="modal-item-value">${order.customer_email}</span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Phone:</span>
+                        <span class="modal-item-value">${order.customer_phone}</span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Delivery Address:</span>
+                        <span class="modal-item-value">${order.delivery_address}</span>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Order Items</div>
+                    <ul class="order-items-list">
+                        ${order.items ? order.items.map(item => `
+                            <li>Menu Item #${item.menu_id} - Qty: ${item.quantity} × Rp ${item.price.toLocaleString('id-ID')}</li>
+                        `).join('') : '<li>No items</li>'}
+                    </ul>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Payment Information</div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Method:</span>
+                        <span class="modal-item-value">${order.payment_method === 'cash' ? 'Cash on Delivery' : 'QR Payment'}</span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Subtotal:</span>
+                        <span class="modal-item-value">Rp ${(order.total_price - order.tax).toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="modal-item">
+                        <span class="modal-item-label">Tax (5%):</span>
+                        <span class="modal-item-value">Rp ${order.tax.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="modal-item" style="font-weight: 700; font-size: 1.1rem; color: var(--pink-vibrant); padding-top: 0.75rem; border-top: 2px solid var(--brown-dark);">
+                        <span class="modal-item-label">Total:</span>
+                        <span class="modal-item-value">Rp ${order.total_price.toLocaleString('id-ID')}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = modalBody;
+            document.getElementById('orderModal').classList.add('show');
+        }
+
+        // Close Order Modal
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('show');
+        }
+
+        // Delete Order
+        async function deleteOrder(orderId) {
+            if (!confirm('Are you sure you want to delete this order?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/orders/${orderId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    loadOrders();
+                } else {
+                    alert('Failed to delete order');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting order: ' + error.message);
+            }
+        }
+
+        // Filter Orders
+        function filterOrders() {
+            const searchId = document.getElementById('searchOrderId').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allOrders.filter(order => {
+                const idMatch = order.id.toString().includes(searchId);
+                const statusMatch = !statusFilter || order.status === statusFilter;
+                return idMatch && statusMatch;
+            });
+
+            // Temporarily replace allOrders
+            const temp = allOrders;
+            allOrders = filtered;
+            renderOrders();
+            allOrders = temp;
+        }
+
+        // Refresh Orders
+        function refreshOrders() {
+            loadOrders();
+        }
+
+        // Show Section
+        function showSection(section) {
+            document.querySelectorAll('[id$="Section"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+
+            if (section === 'overview') {
+                document.getElementById('overviewSection').style.display = 'block';
+                event.target.classList.add('active');
+            } else if (section === 'orders') {
+                document.getElementById('ordersSection').style.display = 'block';
+                event.target.classList.add('active');
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('orderModal');
+            if (event.target == modal) {
+                modal.classList.remove('show');
+            }
+        };
+
+        // Initialize app
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
