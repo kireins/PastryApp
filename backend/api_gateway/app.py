@@ -279,7 +279,12 @@ def create_order():
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        data['username'] = get_jwt_identity()
+        # Use username from request body if provided, otherwise use JWT identity
+        # This allows admin to create orders for customers, and customers to create orders for themselves
+        if 'username' not in data or not data.get('username'):
+            data['username'] = get_jwt_identity()
+        # If username is provided in body, use it (allows admin to specify customer username)
+        
         response = requests.post(f'{ORDER_SERVICE_URL}/orders', json=data, timeout=10)
         
         try:

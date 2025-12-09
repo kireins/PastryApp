@@ -127,10 +127,57 @@ SELECT * FROM menu_items;
 - Pastikan data restaurants ada sebelum menu_items
 - Pastikan data customers ada sebelum orders
 
+## 🔄 Reset Database
+
+### Reset Semua Data (Full Reset)
+
+Jika Anda ingin menghapus **SEMUA** data dan reset AUTO_INCREMENT ke 1:
+
+```bash
+cd backend
+python reset_database.py
+```
+
+Script ini akan:
+- ✅ Menghapus semua data dari semua tabel (orders, customers, menus, restaurants)
+- ✅ Mereset AUTO_INCREMENT ke 1 untuk semua tabel
+- ✅ Menampilkan status reset
+
+**PERINGATAN:** Script ini akan menghapus SEMUA data di database!
+
+### Reset Orders Saja (Recommended)
+
+Jika Anda hanya ingin reset orders tanpa menghapus menu dan restaurant:
+
+```bash
+cd backend
+python reset_orders_only.py
+```
+
+Script ini akan:
+- ✅ Menghapus hanya orders dan order_items
+- ✅ Mereset AUTO_INCREMENT untuk orders ke 1
+- ✅ **TIDAK menghapus** data menu, restaurant, dan customers
+- ✅ Berguna untuk reset order history tanpa kehilangan data master
+
+**Ini adalah pilihan yang lebih aman!**
+
+### Metode 2: Menggunakan SQL Script
+
+```bash
+# 1. Hapus semua data
+mysql -u root -p pastry_db < database/reset_auto_increment.sql
+
+# 2. Atau manual via MySQL client
+USE pastry_db;
+source database/reset_auto_increment.sql;
+```
+
 ## 📝 Notes
 
 - Database menggunakan charset `utf8mb4` untuk support emoji
 - Semua foreign keys menggunakan `ON DELETE CASCADE`
 - Price menggunakan tipe `INT` (bukan DECIMAL) untuk efisiensi
 - Timestamps otomatis dengan `CURRENT_TIMESTAMP`
+- AUTO_INCREMENT tidak pernah di-reset otomatis setelah DELETE (perilaku normal MySQL)
 
