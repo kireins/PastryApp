@@ -345,7 +345,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 #### 3. Install Dependencies
 
 ```bash
-pip install -r backend/requirements.txt
+python3 -m venv venv
 ```
 
 #### 4. Configure Environment Variables
