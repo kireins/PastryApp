@@ -13,21 +13,18 @@ db_config = {
     'port': int(os.getenv('MYSQL_PORT', 3306))
 }
 
-def create_database_and_tables():
-    """Create database and tables"""
+def create_customer_database():
+    """Create customer database and tables"""
     try:
-        # Connect to MySQL
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-
+        
         # Create database
-        database_name = os.getenv('MYSQL_DATABASE', 'pastry_db')
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-        print(f"Database '{database_name}' created or already exists.")
-
-        # Select database
-        cursor.execute(f"USE {database_name}")
-
+        cursor.execute("CREATE DATABASE IF NOT EXISTS customer_db")
+        print("✅ Database 'customer_db' created or already exists.")
+        
+        cursor.execute("USE customer_db")
+        
         # Create customers table
         create_customers_table = """
         CREATE TABLE IF NOT EXISTS customers (
@@ -36,11 +33,43 @@ def create_database_and_tables():
             email VARCHAR(255) UNIQUE NOT NULL,
             phone VARCHAR(20) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         """
         cursor.execute(create_customers_table)
-        print("Customers table created or already exists.")
+        print("✅ Customers table created or already exists.")
+        
+        # Insert sample data
+        cursor.execute("SELECT COUNT(*) FROM customers")
+        if cursor.fetchone()[0] == 0:
+            customers_data = [
+                ('John Doe', 'john@example.com', '081234567890'),
+                ('Jane Smith', 'jane@example.com', '082345678901')
+            ]
+            cursor.executemany(
+                "INSERT INTO customers (name, email, phone) VALUES (%s, %s, %s)",
+                customers_data
+            )
+            print("✅ Sample customers inserted.")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+    except Error as e:
+        print(f"❌ Error creating customer database: {e}")
 
+def create_restaurant_database():
+    """Create restaurant database and tables"""
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        
+        # Create database
+        cursor.execute("CREATE DATABASE IF NOT EXISTS restaurant_db")
+        print("✅ Database 'restaurant_db' created or already exists.")
+        
+        cursor.execute("USE restaurant_db")
+        
         # Create restaurants table
         create_restaurants_table = """
         CREATE TABLE IF NOT EXISTS restaurants (
@@ -48,12 +77,40 @@ def create_database_and_tables():
             name VARCHAR(255) NOT NULL,
             location VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         """
         cursor.execute(create_restaurants_table)
-        print("Restaurants table created or already exists.")
+        print("✅ Restaurants table created or already exists.")
+        
+        # Insert sample data
+        cursor.execute("SELECT COUNT(*) FROM restaurants")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute(
+                "INSERT INTO restaurants (name, location) VALUES (%s, %s)",
+                ('Pastry', 'Jakarta, Indonesia')
+            )
+            print("✅ Sample restaurant inserted.")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+    except Error as e:
+        print(f"❌ Error creating restaurant database: {e}")
 
-        # Create menu_items table
+def create_menu_database():
+    """Create menu database and tables"""
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        
+        # Create database
+        cursor.execute("CREATE DATABASE IF NOT EXISTS menu_db")
+        print("✅ Database 'menu_db' created or already exists.")
+        
+        cursor.execute("USE menu_db")
+        
+        # Create menu_items table (no FK constraint for database-per-service pattern)
         create_menu_items_table = """
         CREATE TABLE IF NOT EXISTS menu_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,13 +119,47 @@ def create_database_and_tables():
             price INT NOT NULL,
             description TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
-        )
+            INDEX idx_restaurant_id (restaurant_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         """
         cursor.execute(create_menu_items_table)
-        print("Menu items table created or already exists.")
+        print("✅ Menu items table created or already exists.")
+        
+        # Insert sample data
+        cursor.execute("SELECT COUNT(*) FROM menu_items")
+        if cursor.fetchone()[0] == 0:
+            menu_items_data = [
+                (1, 'Chocolate Croissant', 35000, 'Delicious chocolate filled croissant'),
+                (1, 'Strawberry Tart', 45000, 'Fresh strawberry tart with cream'),
+                (1, 'Vanilla Donut', 25000, 'Soft vanilla donut with glaze'),
+                (1, 'Matcha Cake', 55000, 'Premium matcha cake')
+            ]
+            cursor.executemany(
+                "INSERT INTO menu_items (restaurant_id, name, price, description) VALUES (%s, %s, %s, %s)",
+                menu_items_data
+            )
+            print("✅ Sample menu items inserted.")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+    except Error as e:
+        print(f"❌ Error creating menu database: {e}")
 
-        # Create orders table
+def create_order_database():
+    """Create order database and tables"""
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        
+        # Create database
+        cursor.execute("CREATE DATABASE IF NOT EXISTS order_db")
+        print("✅ Database 'order_db' created or already exists.")
+        
+        cursor.execute("USE order_db")
+        
+        # Create orders table (no FK to customers for database-per-service pattern)
         create_orders_table = """
         CREATE TABLE IF NOT EXISTS orders (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -84,13 +175,15 @@ def create_database_and_tables():
             status ENUM('on_process', 'on_delivery', 'delivered') DEFAULT 'on_process',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
-        )
+            INDEX idx_customer_id (customer_id),
+            INDEX idx_status (status),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         """
         cursor.execute(create_orders_table)
-        print("Orders table created or already exists.")
-
-        # Create order_items table
+        print("✅ Orders table created or already exists.")
+        
+        # Create order_items table (no FK to menu_items for database-per-service pattern)
         create_order_items_table = """
         CREATE TABLE IF NOT EXISTS order_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -100,70 +193,39 @@ def create_database_and_tables():
             price INT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-            FOREIGN KEY (menu_id) REFERENCES menu_items(id) ON DELETE CASCADE
-        )
+            INDEX idx_order_id (order_id),
+            INDEX idx_menu_id (menu_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         """
         cursor.execute(create_order_items_table)
-        print("Order items table created or already exists.")
-
+        print("✅ Order items table created or already exists.")
+        
         conn.commit()
-        print("\n✅ All tables created successfully!")
-
-        # Insert sample data
-        insert_sample_data(cursor, conn, database_name)
-
         cursor.close()
         conn.close()
-
+        
     except Error as e:
-        print(f"Error: {e}")
+        print(f"❌ Error creating order database: {e}")
 
-def insert_sample_data(cursor, conn, database_name):
-    """Insert sample data into tables"""
-    try:
-        # Check if sample data already exists
-        cursor.execute("SELECT COUNT(*) FROM customers")
-        if cursor.fetchone()[0] > 0:
-            print("\n⏭️  Sample data already exists. Skipping insertion.")
-            return
-
-        # Insert customers
-        customers_data = [
-            ('John Doe', 'john@example.com', '081234567890'),
-            ('Jane Smith', 'jane@example.com', '082345678901')
-        ]
-        cursor.executemany(
-            "INSERT INTO customers (name, email, phone) VALUES (%s, %s, %s)",
-            customers_data
-        )
-        print("✅ Sample customers inserted.")
-
-        # Insert restaurant
-        cursor.execute(
-            "INSERT INTO restaurants (name, location) VALUES (%s, %s)",
-            ('Pastry', 'Jakarta, Indonesia')
-        )
-        print("✅ Sample restaurant inserted.")
-
-        # Insert menu items
-        menu_items_data = [
-            (1, 'Chocolate Croissant', 35000, 'Delicious chocolate filled croissant'),
-            (1, 'Strawberry Tart', 45000, 'Fresh strawberry tart with cream'),
-            (1, 'Vanilla Donut', 25000, 'Soft vanilla donut with glaze'),
-            (1, 'Matcha Cake', 55000, 'Premium matcha cake')
-        ]
-        cursor.executemany(
-            "INSERT INTO menu_items (restaurant_id, name, price, description) VALUES (%s, %s, %s, %s)",
-            menu_items_data
-        )
-        print("✅ Sample menu items inserted.")
-
-        conn.commit()
-        print("\n✅ Sample data inserted successfully!")
-
-    except Error as e:
-        print(f"Error inserting sample data: {e}")
+def create_all_databases():
+    """Create all databases for microservices"""
+    print("🔧 Creating databases for microservices (Database-Per-Service pattern)...\n")
+    
+    create_customer_database()
+    print()
+    create_restaurant_database()
+    print()
+    create_menu_database()
+    print()
+    create_order_database()
+    print()
+    
+    print("✅ All databases created successfully!")
+    print("\n📊 Database Summary:")
+    print("   - customer_db: Customer Service")
+    print("   - restaurant_db: Restaurant Service")
+    print("   - menu_db: Menu Service")
+    print("   - order_db: Order Service")
 
 if __name__ == '__main__':
-    print("🔧 Creating database and tables...\n")
-    create_database_and_tables()
+    create_all_databases()

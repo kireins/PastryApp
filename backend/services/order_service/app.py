@@ -11,12 +11,12 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# MySQL Configuration
+# MySQL Configuration - Order Service Database
 db_config = {
     'host': os.getenv('MYSQL_HOST', 'localhost'),
     'user': os.getenv('MYSQL_USER', 'root'),
     'password': os.getenv('MYSQL_PASSWORD', ''),
-    'database': os.getenv('MYSQL_DATABASE', 'pastry_db'),
+    'database': os.getenv('ORDER_DB_NAME', 'order_db'),
     'port': int(os.getenv('MYSQL_PORT', 3306))
 }
 
@@ -64,6 +64,17 @@ def validate_menu_item(menu_id):
         print(f"ERROR: Menu validation failed: {str(e)}")
         return False
 
+def get_menu_details(menu_id):
+    """Get menu item details from Menu Service"""
+    try:
+        response = requests.get(f'{MENU_SERVICE_URL}/menus/{menu_id}', timeout=5)
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except Exception as e:
+        print(f"ERROR: Failed to fetch menu {menu_id}: {str(e)}")
+        return None
+
 # ==================== ORDER CRUD ====================
 
 @app.route('/orders', methods=['GET'])
@@ -86,15 +97,24 @@ def get_orders():
         
         orders = cursor.fetchall()
         
-        # Enrich orders with items and menu names
+        # Enrich orders with items and menu names (fetch from Menu Service)
         for order in orders:
             cursor.execute('''
-                SELECT oi.menu_id, oi.quantity, oi.price, mi.name as menu_name
+                SELECT oi.menu_id, oi.quantity, oi.price
                 FROM order_items oi
-                LEFT JOIN menu_items mi ON oi.menu_id = mi.id
                 WHERE oi.order_id = %s
             ''', (order['id'],))
-            order['items'] = cursor.fetchall()
+            items = cursor.fetchall()
+            
+            # Fetch menu names from Menu Service
+            for item in items:
+                menu_details = get_menu_details(item['menu_id'])
+                if menu_details:
+                    item['menu_name'] = menu_details.get('name', 'Unknown')
+                else:
+                    item['menu_name'] = 'Unknown'
+            
+            order['items'] = items
         
         cursor.close()
         conn.close()
@@ -119,14 +139,23 @@ def get_order(order_id):
             conn.close()
             return jsonify({'error': 'Order not found'}), 404
 
-        # Get order items with menu names
+        # Get order items (fetch menu names from Menu Service)
         cursor.execute('''
-            SELECT oi.menu_id, oi.quantity, oi.price, mi.name as menu_name
+            SELECT oi.menu_id, oi.quantity, oi.price
             FROM order_items oi
-            LEFT JOIN menu_items mi ON oi.menu_id = mi.id
             WHERE oi.order_id = %s
         ''', (order_id,))
-        order['items'] = cursor.fetchall()
+        items = cursor.fetchall()
+        
+        # Fetch menu names from Menu Service
+        for item in items:
+            menu_details = get_menu_details(item['menu_id'])
+            if menu_details:
+                item['menu_name'] = menu_details.get('name', 'Unknown')
+            else:
+                item['menu_name'] = 'Unknown'
+        
+        order['items'] = items
         
         cursor.close()
         conn.close()

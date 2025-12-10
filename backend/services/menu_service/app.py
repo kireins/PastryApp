@@ -10,12 +10,12 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# MySQL Configuration
+# MySQL Configuration - Menu Service Database
 db_config = {
     'host': os.getenv('MYSQL_HOST', 'localhost'),
     'user': os.getenv('MYSQL_USER', 'root'),
     'password': os.getenv('MYSQL_PASSWORD', ''),
-    'database': os.getenv('MYSQL_DATABASE', 'pastry_db'),
+    'database': os.getenv('MENU_DB_NAME', 'menu_db'),
     'port': int(os.getenv('MYSQL_PORT', 3306))
 }
 

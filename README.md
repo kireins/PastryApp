@@ -374,24 +374,38 @@ RESTAURANT_SERVICE_URL=http://localhost:5002
 MENU_SERVICE_URL=http://localhost:5003
 ORDER_SERVICE_URL=http://localhost:5004
 
-# MySQL Configuration
+# MySQL Configuration (shared connection settings)
 MYSQL_HOST=localhost
 MYSQL_USER=root
 MYSQL_PASSWORD=
-MYSQL_DATABASE=pastry_db
 MYSQL_PORT=3306
+
+# Database Names (Database-Per-Service Pattern)
+CUSTOMER_DB_NAME=customer_db
+RESTAURANT_DB_NAME=restaurant_db
+MENU_DB_NAME=menu_db
+ORDER_DB_NAME=order_db
 ```
 
-#### 5. Initialize Database
+#### 5. Initialize Databases
 
 ```bash
 python backend/init_db.py
 ```
 
-This will create:
-- Database: `pastry_db`
-- Tables: customers, restaurants, menu_items, orders, order_items
-- Sample data: 2 customers, 1 restaurant, 4 menu items
+This will create **4 separate databases** (Database-Per-Service pattern):
+- **customer_db**: Customer Service database
+  - Table: `customers`
+  - Sample data: 2 customers
+- **restaurant_db**: Restaurant Service database
+  - Table: `restaurants`
+  - Sample data: 1 restaurant
+- **menu_db**: Menu Service database
+  - Table: `menu_items`
+  - Sample data: 4 menu items
+- **order_db**: Order Service database
+  - Tables: `orders`, `order_items`
+  - No sample data (orders are created via API)
 
 #### 6. Start Microservices
 
