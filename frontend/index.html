@@ -329,6 +329,15 @@
             color: var(--white);
         }
 
+        .menu-card.cream {
+            background-color: #f8ede0;
+            border: 1px solid rgba(108, 63, 43, 0.2);
+        }
+
+        .menu-card.green {
+            background-color: var(--green-base);
+        }
+
         .menu-name {
             font-size: 1.2rem;
             font-weight: 600;
@@ -830,9 +839,6 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <div class="form-group" style="font-size: 0.85rem; color: #666; margin-top: -0.5rem;">
-                    <em>Role akan ditentukan otomatis oleh server berdasarkan username</em>
-                </div>
                 <button type="submit" class="btn-submit">Login</button>
             </form>
         </div>
@@ -1118,7 +1124,7 @@
             const menuGrid = document.getElementById('menuGrid');
             menuGrid.innerHTML = '';
 
-            const colors = ['brown', 'pink-light', 'pink-light', 'pink-hot'];
+            const colors = ['brown', 'pink-light', 'cream', 'green'];
 
             menuItems.forEach((item, index) => {
                 const card = document.createElement('div');

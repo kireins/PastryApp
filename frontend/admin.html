@@ -248,11 +248,14 @@
             border-radius: 12px;
             box-shadow: var(--shadow-sm);
             overflow-x: auto;
+            overflow-y: visible;
+            position: relative;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            position: relative;
         }
 
         thead {
@@ -273,6 +276,8 @@
             padding: 1.25rem;
             border-bottom: 1px solid var(--pink-light);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: visible;
         }
 
 
@@ -313,17 +318,20 @@
 
         /* Dropdown Menu */
         .dropdown {
-            position: relative;
+            position: static;
+            display: inline-block;
         }
 
         .dropdown-content {
             display: none;
-            position: absolute;
+            position: fixed;
             background-color: var(--white);
             min-width: 160px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
+            z-index: 9999;
             border-radius: 8px;
+            border: 1px solid var(--pink-light);
+            margin-top: 0.25rem;
         }
 
         .dropdown-content.show {
@@ -681,8 +689,8 @@
                     <input type="text" class="filter-input" id="searchOrderId" placeholder="🔍 Search by Order ID" onkeyup="filterOrders()">
                     <select class="filter-input" id="statusFilter" onchange="filterOrders()">
                         <option value="">All Status</option>
-                        <option value="on process">On Process</option>
-                        <option value="on delivery">On Delivery</option>
+                        <option value="on_process">On Process</option>
+                        <option value="on_delivery">On Delivery</option>
                         <option value="delivered">Delivered</option>
                     </select>
                     <button class="btn btn-refresh" onclick="refreshOrders()">🔄 Refresh</button>
@@ -833,8 +841,16 @@
                 const row = document.createElement('tr');
                 row.style.animationDelay = `${index * 0.05}s`;
 
+                // Convert backend status (with underscore) to display format (with space)
+                const statusDisplayMap = {
+                    'on_process': 'on process',
+                    'on_delivery': 'on delivery',
+                    'delivered': 'delivered'
+                };
+                const displayStatus = statusDisplayMap[order.status] || order.status;
+                
                 // Map human-friendly status values to existing CSS badge classes
-                const statusClass = order.status === 'on process' ? 'status-process' : (order.status === 'on delivery' ? 'status-delivery' : 'status-delivered');
+                const statusClass = order.status === 'on_process' ? 'status-process' : (order.status === 'on_delivery' ? 'status-delivery' : 'status-delivered');
                 const itemCount = order.items ? order.items.length : 0;
 
                 row.innerHTML = `
@@ -845,7 +861,7 @@
                     <td>
                         <div class="dropdown">
                             <span class="status-badge ${statusClass}" onclick="toggleDropdown(event)">
-                                ${order.status.toUpperCase()}
+                                ${displayStatus.toUpperCase()}
                             </span>
                             <div class="dropdown-content" data-order-id="${order.id}">
                                 <div class="dropdown-item" onclick="updateOrderStatus(${order.id}, 'on process')">On Process</div>
@@ -870,8 +886,8 @@
         // Update Stats
         function updateStats() {
             const total = allOrders.length;
-            const process = allOrders.filter(o => o.status === 'on process').length;
-            const delivery = allOrders.filter(o => o.status === 'on delivery').length;
+            const process = allOrders.filter(o => o.status === 'on_process').length;
+            const delivery = allOrders.filter(o => o.status === 'on_delivery').length;
             const delivered = allOrders.filter(o => o.status === 'delivered').length;
 
             document.getElementById('totalOrdersStat').textContent = total;
@@ -884,30 +900,62 @@
 
         // Toggle Dropdown
         function toggleDropdown(event) {
-            const dropdown = event.target.nextElementSibling;
+            event.stopPropagation();
+            const badge = event.target;
+            const dropdown = badge.nextElementSibling;
+            
+            // Close all other dropdowns
             document.querySelectorAll('.dropdown-content').forEach(d => {
                 if (d !== dropdown) d.classList.remove('show');
             });
+            
+            // Toggle current dropdown
+            const isShowing = dropdown.classList.contains('show');
             dropdown.classList.toggle('show');
+            
+            if (!isShowing) {
+                // Position dropdown below the badge using fixed positioning
+                const badgeRect = badge.getBoundingClientRect();
+                dropdown.style.top = (badgeRect.bottom + window.scrollY + 4) + 'px';
+                dropdown.style.left = (badgeRect.left + window.scrollX) + 'px';
+            }
         }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-content').forEach(d => {
+                    d.classList.remove('show');
+                });
+            }
+        });
 
         // Update Order Status
         async function updateOrderStatus(orderId, newStatus) {
             try {
+                // Convert display format (with space) to backend format (with underscore)
+                const statusMap = {
+                    'on process': 'on_process',
+                    'on delivery': 'on_delivery',
+                    'delivered': 'delivered'
+                };
+                const backendStatus = statusMap[newStatus] || newStatus;
+                
                 const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`
                     },
-                    body: JSON.stringify({ status: newStatus })
+                    body: JSON.stringify({ status: backendStatus })
                 });
 
                 if (response.ok) {
                     loadOrders();
                     document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
                 } else {
-                    alert('Failed to update status');
+                    const errorData = await response.json().catch(() => ({}));
+                    alert('Failed to update status: ' + (errorData.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -948,7 +996,15 @@
             // Debug: Log order items to see if menu_name is present
             console.log('Order items:', order.items);
 
-            const statusClass = order.status === 'on process' ? 'status-process' : (order.status === 'on delivery' ? 'status-delivery' : 'status-delivered');
+            // Convert backend status (with underscore) to display format (with space)
+            const statusDisplayMap = {
+                'on_process': 'on process',
+                'on_delivery': 'on delivery',
+                'delivered': 'delivered'
+            };
+            const displayStatus = statusDisplayMap[order.status] || order.status;
+            
+            const statusClass = order.status === 'on_process' ? 'status-process' : (order.status === 'on_delivery' ? 'status-delivery' : 'status-delivered');
             let modalBody = `
                 <div class="modal-section">
                     <div class="modal-section-title">Order Information</div>
@@ -958,7 +1014,7 @@
                     </div>
                     <div class="modal-item">
                         <span class="modal-item-label">Status:</span>
-                        <span class="status-badge ${statusClass}">${order.status.toUpperCase()}</span>
+                        <span class="status-badge ${statusClass}">${displayStatus.toUpperCase()}</span>
                     </div>
                     <div class="modal-item">
                         <span class="modal-item-label">Created:</span>

@@ -64,6 +64,28 @@ def validate_menu_item(menu_id):
         print(f"ERROR: Menu validation failed: {str(e)}")
         return False
 
+def create_customer(name, email, phone):
+    """Create customer in Customer Service and return customer_id"""
+    try:
+        response = requests.post(
+            f'{CUSTOMER_SERVICE_URL}/customers',
+            json={'name': name, 'email': email, 'phone': phone},
+            timeout=5
+        )
+        if response.status_code == 201:
+            customer_data = response.json()
+            return customer_data.get('id')
+        return None
+    except requests.exceptions.ConnectionError:
+        print(f"ERROR: Cannot connect to Customer Service at {CUSTOMER_SERVICE_URL}")
+        return None
+    except requests.exceptions.Timeout:
+        print(f"ERROR: Customer Service request timeout")
+        return None
+    except Exception as e:
+        print(f"ERROR: Customer creation failed: {str(e)}")
+        return None
+
 # ==================== ORDER CRUD ====================
 
 @app.route('/orders', methods=['GET'])
@@ -143,11 +165,29 @@ def create_order():
         return jsonify({'error': 'Database connection failed'}), 500
 
     try:
-        # Validate customer
+        # Get or create customer
         customer_id = data.get('customer_id')
-        if not customer_id:
-            return jsonify({'error': 'customer_id is required'}), 400
         
+        # If customer_id not provided, try to create customer from customer info
+        if not customer_id:
+            customer_name = data.get('customer_name')
+            customer_email = data.get('customer_email')
+            customer_phone = data.get('customer_phone')
+            
+            if customer_name and customer_email and customer_phone:
+                # Auto-create customer
+                customer_id = create_customer(customer_name, customer_email, customer_phone)
+                if not customer_id:
+                    return jsonify({
+                        'error': 'Failed to create customer record',
+                        'details': 'Please check if Customer Service is running on port 5001'
+                    }), 503
+            else:
+                return jsonify({
+                    'error': 'customer_id is required, or provide customer_name, customer_email, and customer_phone to auto-create customer'
+                }), 400
+        
+        # Validate customer exists
         if not validate_customer(customer_id):
             return jsonify({
                 'error': f'Customer {customer_id} not found or Customer Service is not available',

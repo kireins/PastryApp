@@ -46,31 +46,31 @@ echo [OK] Database initialized
 echo.
 
 echo [2/6] Starting API Gateway (Port 5000)...
-start "API Gateway - Port 5000" cmd /k "cd /d %BACKEND_DIR%\api_gateway && call %BACKEND_DIR%\venv\Scripts\activate.bat && python app.py"
+start "API Gateway - Port 5000" cmd /k "cd /d "%BACKEND_DIR%\api_gateway" && call "%BACKEND_DIR%\venv\Scripts\activate.bat" && python app.py"
 timeout /t 3 /nobreak >nul
 echo [OK] API Gateway started
 echo.
 
 echo [3/6] Starting Customer Service (Port 5001)...
-start "Customer Service - Port 5001" cmd /k "cd /d %BACKEND_DIR%\services\customer_service && call %BACKEND_DIR%\venv\Scripts\activate.bat && python app.py"
+start "Customer Service - Port 5001" cmd /k "cd /d "%BACKEND_DIR%\services\customer_service" && call "%BACKEND_DIR%\venv\Scripts\activate.bat" && python app.py"
 timeout /t 2 /nobreak >nul
 echo [OK] Customer Service started
 echo.
 
 echo [4/6] Starting Menu Service (Port 5003)...
-start "Menu Service - Port 5003" cmd /k "cd /d %BACKEND_DIR%\services\menu_service && call %BACKEND_DIR%\venv\Scripts\activate.bat && python app.py"
+start "Menu Service - Port 5003" cmd /k "cd /d "%BACKEND_DIR%\services\menu_service" && call "%BACKEND_DIR%\venv\Scripts\activate.bat" && python app.py"
 timeout /t 2 /nobreak >nul
 echo [OK] Menu Service started
 echo.
 
 echo [5/6] Starting Order Service (Port 5004)...
-start "Order Service - Port 5004" cmd /k "cd /d %BACKEND_DIR%\services\order_service && call %BACKEND_DIR%\venv\Scripts\activate.bat && python app.py"
+start "Order Service - Port 5004" cmd /k "cd /d "%BACKEND_DIR%\services\order_service" && call "%BACKEND_DIR%\venv\Scripts\activate.bat" && python app.py"
 timeout /t 2 /nobreak >nul
 echo [OK] Order Service started
 echo.
 
 echo [6/6] Starting Frontend Server (Port 8000)...
-start "Frontend Server - Port 8000" cmd /k "cd /d %FRONTEND_DIR% && python -m http.server 8000"
+start "Frontend Server - Port 8000" cmd /k "cd /d "%FRONTEND_DIR%" && python -m http.server 8000"
 timeout /t 2 /nobreak >nul
 echo [OK] Frontend Server started
 echo.
