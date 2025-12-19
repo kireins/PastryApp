@@ -84,8 +84,8 @@ echo   Customer Interface: http://localhost:8000/index.html
 echo   Admin Dashboard:    http://localhost:8000/admin.html
 echo.
 echo Login Credentials:
-echo   Customer: username: customer | password: iamcustomer
-echo   Admin:    username: admin    | password: iamadmin
+echo   Customer: username: customer ^| password: iamcustomer
+echo   Admin:    username: admin    ^| password: iamadmin
 echo.
 echo Services Running On:
 echo   API Gateway:      http://localhost:5000

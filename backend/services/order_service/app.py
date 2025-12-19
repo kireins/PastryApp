@@ -208,6 +208,45 @@ def create_order():
                     'error': f'Menu item {menu_id} not found or Menu Service is not available',
                     'details': 'Please check if Menu Service is running on port 5003'
                 }), 404
+            
+            # Validate item price
+            item_price = item.get('price')
+            if item_price is None:
+                return jsonify({'error': 'Each item must have a price'}), 400
+            
+            try:
+                item_price = float(item_price)
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Item price must be a valid number'}), 400
+            
+            if item_price <= 0:
+                return jsonify({'error': 'Item price must be greater than 0'}), 400
+            
+            # Validate item quantity
+            item_quantity = item.get('quantity')
+            if item_quantity is None:
+                return jsonify({'error': 'Each item must have a quantity'}), 400
+            
+            try:
+                item_quantity = int(item_quantity)
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Item quantity must be a valid integer'}), 400
+            
+            if item_quantity <= 0:
+                return jsonify({'error': 'Item quantity must be greater than 0'}), 400
+        
+        # Validate total_price
+        total_price = data.get('total_price')
+        if total_price is None:
+            return jsonify({'error': 'total_price is required'}), 400
+        
+        try:
+            total_price = float(total_price)
+        except (ValueError, TypeError):
+            return jsonify({'error': 'total_price must be a valid number'}), 400
+        
+        if total_price <= 0:
+            return jsonify({'error': 'total_price must be greater than 0'}), 400
 
         cursor = conn.cursor()
         
@@ -225,7 +264,7 @@ def create_order():
             data.get('customer_phone'),
             data.get('delivery_address'),
             data.get('payment_method'),
-            data.get('total_price'),
+            total_price,
             data.get('tax'),
             'on_process'
         ))
@@ -234,12 +273,15 @@ def create_order():
         
         # Create order items
         for item in items:
+            # Validate and convert item price and quantity
+            item_price = float(item.get('price'))
+            item_quantity = int(item.get('quantity'))
             item_query = 'INSERT INTO order_items (order_id, menu_id, quantity, price) VALUES (%s, %s, %s, %s)'
             cursor.execute(item_query, (
                 order_id,
                 item.get('menu_id'),
-                item.get('quantity'),
-                item.get('price')
+                item_quantity,
+                item_price
             ))
         
         conn.commit()
@@ -263,6 +305,22 @@ def update_order(order_id):
         return jsonify({'error': 'Database connection failed'}), 500
 
     try:
+        # Validate total_price if provided
+        if 'total_price' in data:
+            total_price = data.get('total_price')
+            if total_price is None:
+                return jsonify({'error': 'total_price cannot be null'}), 400
+            
+            try:
+                total_price = float(total_price)
+            except (ValueError, TypeError):
+                return jsonify({'error': 'total_price must be a valid number'}), 400
+            
+            if total_price <= 0:
+                return jsonify({'error': 'total_price must be greater than 0'}), 400
+        else:
+            total_price = data.get('total_price')
+        
         cursor = conn.cursor()
         query = '''UPDATE orders SET customer_name = %s, customer_email = %s, 
                    customer_phone = %s, delivery_address = %s, payment_method = %s, 
@@ -274,7 +332,7 @@ def update_order(order_id):
             data.get('customer_phone'),
             data.get('delivery_address'),
             data.get('payment_method'),
-            data.get('total_price'),
+            total_price,
             data.get('tax'),
             order_id
         ))

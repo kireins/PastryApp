@@ -93,12 +93,25 @@ def create_menu():
         return jsonify({'error': 'Database connection failed'}), 500
 
     try:
+        # Validate price
+        price = data.get('price')
+        if price is None:
+            return jsonify({'error': 'Price is required'}), 400
+        
+        try:
+            price = float(price)
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Price must be a valid number'}), 400
+        
+        if price <= 0:
+            return jsonify({'error': 'Price must be greater than 0'}), 400
+        
         cursor = conn.cursor()
         query = 'INSERT INTO menu_items (restaurant_id, name, price, description) VALUES (%s, %s, %s, %s)'
         cursor.execute(query, (
             data.get('restaurant_id'),
             data.get('name'),
-            data.get('price'),
+            price,
             data.get('description', '')
         ))
         conn.commit()
@@ -118,11 +131,27 @@ def update_menu(menu_id):
         return jsonify({'error': 'Database connection failed'}), 500
 
     try:
+        # Validate price if provided
+        if 'price' in data:
+            price = data.get('price')
+            if price is None:
+                return jsonify({'error': 'Price cannot be null'}), 400
+            
+            try:
+                price = float(price)
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Price must be a valid number'}), 400
+            
+            if price <= 0:
+                return jsonify({'error': 'Price must be greater than 0'}), 400
+        else:
+            price = data.get('price')
+        
         cursor = conn.cursor()
         query = 'UPDATE menu_items SET name = %s, price = %s, description = %s WHERE id = %s'
         cursor.execute(query, (
             data.get('name'),
-            data.get('price'),
+            price,
             data.get('description', ''),
             menu_id
         ))
